@@ -3,6 +3,7 @@ class MovableObject {
   y = 100;
   height = 100;
   width = 100;
+  hp = 100;
   img;
   imageCache = {};
   currentImage = 0;
@@ -55,6 +56,27 @@ class MovableObject {
     ctx.lineWidth = 2;
     ctx.strokeStyle = "blue";
     ctx.stroke();
-    // }d
+    // }
+  }
+
+  isColliding(obj) {
+    return (
+      this.x + this.offsetX + this.width + this.offsetWidth >= obj.x + obj.offsetX &&
+      this.x + this.offsetX <= obj.x + obj.offsetX + obj.width + obj.offsetWidth &&
+      this.y + this.offsetY + this.height + this.offsetHeight >= obj.y + obj.offsetY &&
+      this.y + this.offsetY <= obj.y + obj.offsetY + obj.height + obj.offsetHeight
+    );
+    // obj.onCollisionCourse;
+  }
+
+  isHurt(damage) {
+    this.hp -= damage;
+    if (this.hp < 0) {
+      this.hp = 0;
+    }
+  }
+
+  isDead() {
+    return this.hp == 0;
   }
 }

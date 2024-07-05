@@ -10,9 +10,28 @@ class World {
   constructor() {
     this.ctx = canvas.getContext("2d");
     this.draw();
-    // this.setWorld();
+    this.checkCollisions();
   }
 
+  checkCollisions() {
+    setInterval(() => {
+      this.enemies.forEach((enemy) => {
+        if (this.character.isColliding(enemy) && !this.character.isDead()) {
+          console.log("collision of character with", enemy);
+          this.character.isHurt(2);
+          console.log("remaining hp:", this.character.hp);
+          if (this.character.hp <= 0) {
+            this.character.idling = false;
+
+            this.character.loadImage(this.character.IMAGES_DEAD_POISON[0]);
+            world.playDeathAnimation();
+          }
+        }
+      });
+    }, 1000 / 10);
+  }
+
+  /** If we don't want to provide the world to character as parameter */
   setWorld() {
     this.character.world = this;
   }
@@ -72,5 +91,19 @@ class World {
   flipImageBack(mo) {
     mo.x = mo.x * -1;
     this.ctx.restore();
+  }
+
+  playDeathAnimation() {
+    console.log("playing Death");
+    this.character.currentImage=0;
+    let counter = 0;
+    let deathInterval = setInterval(() => {
+      if (counter >= this.character.IMAGES_DEAD_POISON.length-1) {
+        clearInterval(deathInterval);
+      }
+      this.character.playAnimation(this.character.IMAGES_DEAD_POISON);
+      counter++;
+      console.log(counter);
+    }, 1000 / 20);
   }
 }

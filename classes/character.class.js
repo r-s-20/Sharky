@@ -10,6 +10,7 @@ class Character extends MovableObject {
   acceleration = 0.2;
   IMAGES_IDLE = [];
   IMAGES_SWIM = [];
+  IMAGES_DEAD_POISON = [];
   otherDirection = false;
   intervalAnimation;
   level;
@@ -26,9 +27,15 @@ class Character extends MovableObject {
     this.y = 50;
     this.loadImagePaths(this.IMAGES_IDLE, 18, "img/1.Sharkie/1.IDLE/");
     this.loadImagePaths(this.IMAGES_SWIM, 6, "img/1.Sharkie/3.Swim/");
+    this.loadImagePaths(
+      this.IMAGES_DEAD_POISON,
+      12,
+      "./img/1.Sharkie/6.dead/1.Poisoned/"
+    );
 
     this.loadImages(this.IMAGES_IDLE);
     this.loadImages(this.IMAGES_SWIM);
+    this.loadImages(this.IMAGES_DEAD_POISON);
 
     this.loadImage(this.IMAGES_IDLE[0]);
     this.animate();
@@ -36,31 +43,31 @@ class Character extends MovableObject {
   }
 
   animate() {
-    let frameCount = 0;
     this.idle();
     this.applyGravity();
     let intervalBaseAnimation = setInterval(() => {
-      frameCount = frameCount++;
       this.rain_sound.pause();
-      this.world.enemies.forEach((enemy) => {
-        if (this.isColliding(enemy)) {
-          console.log("collision detected");
+      if (!this.isDead()) {
+        // this.world.enemies.forEach((enemy) => {
+        //   if (this.isColliding(enemy)) {
+        //     console.log("collision detected");
+        //   }
+        // });
+        if (keyboard.RIGHT && this.x < this.level.level_end_x) {
+          this.otherDirection = false;
+          this.swim();
         }
-      });
-      if (keyboard.RIGHT && this.x < this.level.level_end_x) {
-        this.otherDirection = false;
-        this.swim();
+        if (keyboard.LEFT && this.x > -50) {
+          this.otherDirection = true;
+          this.swim();
+        }
+        if (keyboard.UP) {
+          this.jump();
+        } else {
+          this.idling = true;
+        }
       }
-      if (keyboard.LEFT && this.x > -50) {
-        this.otherDirection = true;
-        this.swim();
-      }
-      if (keyboard.UP) {
-        this.jump();
-      } else {
-        this.idling = true;
-      }
-    }, 1000 / 60);
+    }, 1000 / 30);
   }
 
   idle() {
@@ -71,7 +78,7 @@ class Character extends MovableObject {
         this.img = this.imageCache[path];
         this.currentImage++;
       }
-    }, 1000 / 5);
+    }, 1000 / 15);
   }
 
   swim() {
@@ -82,7 +89,6 @@ class Character extends MovableObject {
       this.x += this.speedX;
     }
     this.rain_sound.play();
-
     this.playAnimation(this.IMAGES_SWIM);
   }
 
@@ -117,15 +123,5 @@ class Character extends MovableObject {
     );
     ctx.strokeStyle = "red";
     ctx.stroke();
-  }
-
-  isColliding(obj) {
-    return (
-      this.x + this.offsetX + this.width + this.offsetWidth >= obj.x + obj.offsetX &&
-      this.x + this.offsetX <= obj.x + obj.offsetX + obj.width + obj.offsetWidth &&
-      this.y + this.offsetY + this.height + this.offsetHeight >= obj.y + obj.offsetY &&
-      this.y + this.offsetY <= obj.y + obj.offsetY + obj.height + obj.offsetHeight
-    );
-    // obj.onCollisionCourse;
   }
 }
