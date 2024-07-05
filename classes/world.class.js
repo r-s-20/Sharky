@@ -1,6 +1,6 @@
 class World {
   ctx;
-  level=level1;
+  level = level1;
   character = new Character(this.level);
   enemies = this.level.enemies;
   light = this.level.light;
@@ -27,7 +27,14 @@ class World {
     this.addObjectsToMap(this.enemies);
     this.addToMap(this.character);
 
-    // this.ctx.translate(-this.camera_x, 0);
+    this.character.drawCollisionRectOuter(this.ctx);
+    this.character.drawCollisionRectChar(this.ctx); 
+    this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
+    this.enemies.forEach((enemy) => enemy.drawCollisionRectInner(this.ctx));
+
+
+    // this.drawCollisionRectChar(this.character);
+    // this.drawCollisionRectsFish(this.enemies[0]);
 
     requestAnimationFrame(() => {
       this.draw();
@@ -57,4 +64,8 @@ class World {
     this.ctx.scale(-1, 1);
     mo.x = mo.x * -1;
   }
+
+  
+
+  
 }

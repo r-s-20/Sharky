@@ -8,6 +8,8 @@ class MovableObject {
   currentImage = 0;
   movingInterval;
   otherDirection = false;
+  stopAnimation = false;
+  animationInterval;
 
   loadImage(path) {
     this.img = new Image();
@@ -18,15 +20,14 @@ class MovableObject {
     this.x += step;
   }
 
-  moveLeft(speed=1000/60, step = 1) {
+  moveLeft(speed = 1000 / 60, step = 1) {
     this.movingInterval = setInterval(() => {
-    this.x -= step;
-  }, speed
-  )
+      this.x -= step;
+    }, speed);
   }
 
   loadImagePaths(array, count, path) {
-    for (let i = 1; i < count+1; i++) {
+    for (let i = 1; i < count + 1; i++) {
       array.push(`${path}${i}.png`);
     }
   }
@@ -39,13 +40,25 @@ class MovableObject {
     });
   }
 
-  playAnimation(IMAGES, speed) {
-    let intervalId = setInterval(() => {
-      let i = this.currentImage % IMAGES.length;
-      let path = IMAGES[i];
-      this.img = this.imageCache[path];
-      this.currentImage++;
-    }, speed);
+  playAnimation(IMAGES) {
+        let i = this.currentImage % IMAGES.length;
+        let path = IMAGES[i];
+        this.img = this.imageCache[path];
+        this.currentImage++;
+        this.animationRunning = true;
   }
 
+  drawCollisionRectOuter(ctx) {
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.strokeStyle = "blue";
+    ctx.stroke();
+  }
+
+  // drawCollisionRectChar(mo) {
+  //   this.ctx.beginPath();
+  //   this.ctx.rect(mo.x + 38, mo.y + 95, mo.width - 75, mo.height - 137);
+  //   this.ctx.strokeStyle = "red";
+  //   this.ctx.stroke();
+  // }
 }

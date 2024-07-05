@@ -9,37 +9,68 @@ function init() {
 
 window.addEventListener("keydown", (e) => {
   // console.log(e);
-  if (e.key == "ArrowUp") {
-    keyboard.UP = true;
-  } else if (e.key == "ArrowDown") {
-    keyboard.DOWN = true;
-  } else if (e.key == "ArrowLeft") {
-    keyboard.LEFT = true;
-  } else if (e.key == "ArrowRight") {
-    keyboard.RIGHT = true;
-  } else if (e.keycode = 65) {
-    keyboard.LEFT = true;
-    console.log("a was pressed");
-  } else if (e.keycode = 32) {
-    keyboard.SPACE = true;
+  switch (e.key) {
+    case "ArrowUp":
+      keyboard.UP = true;
+      break;
+    case "w":
+      keyboard.UP = true;
+      break;
+    case "ArrowDown":
+      keyboard.DOWN = true;
+      break;
+    case "s":
+      keyboard.DOWN = true;
+      break;
+    case "ArrowLeft":
+      keyboard.LEFT = true;
+      break;
+    case "a":
+      keyboard.LEFT = true;
+      break;
+    case "ArrowRight":
+      keyboard.RIGHT = true;
+      break;
+    case "d":
+      keyboard.RIGHT = true;
+      break;
+    case " ":
+      keyboard.SPACE = true;
+      break;
   }
-
+  // console.log(e);
   // console.log(keyboard);
 });
 
 window.addEventListener("keyup", (e) => {
-  if (e.key == "ArrowUp") {
-    keyboard.UP = false;
-  } else if (e.key == "ArrowDown") {
-    keyboard.DOWN = false;
-  } else if (e.key == "ArrowLeft") {
-    keyboard.LEFT = false;
-  } else if (e.key == "ArrowRight") {
-    keyboard.RIGHT = false;
-  } else if (e.keycode = 32) {
-    keyboard.SPACE = false;
-  // } else if (e.key = "a") {
-  //   keyboard.LEFT = false;
+  switch (e.key) {
+    case "ArrowUp":
+      keyboard.UP = false;
+      break;
+    case "w":
+      keyboard.UP = false;
+      break;
+    case "ArrowDown":
+      keyboard.DOWN = false;
+      break;
+    case "s":
+      keyboard.DOWN = false;
+      break;
+    case "ArrowLeft":
+      keyboard.LEFT = false;
+      break;
+    case "a":
+      keyboard.LEFT = false;
+      break;
+    case "ArrowRight":
+      keyboard.RIGHT = false;
+      break;
+    case "d":
+      keyboard.RIGHT = false;
+      break;
+    case " ":
+      keyboard.SPACE = false;
+      break;
   }
   // console.log(keyboard);
 });

@@ -1,11 +1,18 @@
 class Character extends MovableObject {
   height = 200;
   width = 200;
+  speedY = 0;
+  speedX = 5;
+  d;
+  acceleration = 0.2;
   IMAGES_IDLE = [];
+  IMAGES_SWIM = [];
   otherDirection = false;
   intervalAnimation;
   level;
   idling = true;
+  swimming = false;
+  d;
   woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");
   rain_sound = new Audio("./audio/Rain.ogg");
 
@@ -13,31 +20,36 @@ class Character extends MovableObject {
 
   constructor(level) {
     super();
-    this.loadImage("./img/1.Sharkie/1.IDLE/1.png");
     this.x = 50;
-    this.y = 150;
+    this.y = 50;
     this.loadImagePaths(this.IMAGES_IDLE, 18, "img/1.Sharkie/1.IDLE/");
+    this.loadImagePaths(this.IMAGES_SWIM, 6, "img/1.Sharkie/3.Swim/");
+
     this.loadImages(this.IMAGES_IDLE);
+    this.loadImages(this.IMAGES_SWIM);
+
+    this.loadImage(this.IMAGES_IDLE[0]);
     this.animate();
     this.level = level;
   }
 
   animate() {
+    let frameCount = 0;
     this.idle();
+    this.applyGravity();
     let intervalBaseAnimation = setInterval(() => {
+      frameCount = frameCount++;
       this.rain_sound.pause();
       if (keyboard.RIGHT && this.x < this.level.level_end_x) {
-        // clearInterval(this.intervalAnimation);
-        this.idling = false;
         this.otherDirection = false;
-        this.x += 5;
-        this.rain_sound.play();
-      } else if (keyboard.LEFT && this.x > -50) {
-        this.idling = false;
-        // clearInterval(this.intervalAnimation);
+        this.swim();
+      }
+      if (keyboard.LEFT && this.x > -50) {
         this.otherDirection = true;
-        this.x -= 5;
-        this.rain_sound.play();
+        this.swim();
+      }
+      if (keyboard.UP) {
+        this.jump();
       } else {
         this.idling = true;
       }
@@ -55,5 +67,43 @@ class Character extends MovableObject {
     }, 1000 / 5);
   }
 
-  jump() {}
+  swim() {
+    this.idling = false;
+    if (this.otherDirection) {
+      this.x -= this.speedX;
+    } else {
+      this.x += this.speedX;
+    }
+    this.rain_sound.play();
+
+    this.playAnimation(this.IMAGES_SWIM);
+  }
+
+  applyGravity() {
+    setInterval(() => {
+      if (this.isAboveGround() || this.speedY > 0) {
+        this.y -= this.speedY;
+        this.speedY -= this.acceleration;
+      }
+    }, 1000 / 25);
+  }
+
+  isAboveGround() {
+    return this.y < 230;
+  }
+
+  stopAnimation() {
+    clearInterval(this.animationInterval);
+  }
+
+  jump() {
+    this.speedY = 3;
+  }
+
+  drawCollisionRectChar(ctx) {
+    ctx.beginPath();
+    ctx.rect(this.x + 38, this.y + 95, this.width - 75, this.height - 137);
+    ctx.strokeStyle = "red";
+    ctx.stroke();
+  }
 }
