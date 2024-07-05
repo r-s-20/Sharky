@@ -11,6 +11,7 @@ class Character extends MovableObject {
   IMAGES_IDLE = [];
   IMAGES_SWIM = [];
   IMAGES_DEAD_POISON = [];
+  IMAGES_HURT_POISON = [];
   otherDirection = false;
   intervalAnimation;
   level;
@@ -32,10 +33,12 @@ class Character extends MovableObject {
       12,
       "./img/1.Sharkie/6.dead/1.Poisoned/"
     );
+    this.loadImagePaths(this.IMAGES_HURT_POISON, 4, "img/1.Sharkie/5.Hurt/1.Poisoned/");
 
     this.loadImages(this.IMAGES_IDLE);
     this.loadImages(this.IMAGES_SWIM);
     this.loadImages(this.IMAGES_DEAD_POISON);
+    this.loadImages(this.IMAGES_HURT_POISON);
 
     this.loadImage(this.IMAGES_IDLE[0]);
     this.animate();
@@ -56,18 +59,27 @@ class Character extends MovableObject {
         if (keyboard.RIGHT && this.x < this.level.level_end_x) {
           this.otherDirection = false;
           this.swim();
-        }
-        if (keyboard.LEFT && this.x > -50) {
+        } else if (keyboard.LEFT && this.x > -50) {
           this.otherDirection = true;
           this.swim();
-        }
-        if (keyboard.UP) {
+        } else if (keyboard.UP) {
           this.jump();
         } else {
+          if (this.isHurt()) {
+            console.log("has a recent hit");
+            this.hurt();
+          }
           this.idling = true;
         }
       }
     }, 1000 / 30);
+
+    // setInterval(() => {
+    //   if (this.isHurt()) {
+    //     console.log("has a recent hit");
+    //     this.hurt();
+    //   }
+    // }, 1000 / 60);
   }
 
   idle() {
@@ -123,5 +135,21 @@ class Character extends MovableObject {
     );
     ctx.strokeStyle = "red";
     ctx.stroke();
+  }
+
+  hurt(IMAGES = this.IMAGES_HURT_POISON) {
+    this.idling = false;
+    this.currentImage = 0;
+    let counter = 0;
+    let hurtInterval = setInterval(() => {
+      if (!this.isDead()) {
+        if (counter >= IMAGES.length - 1) {
+          clearInterval(hurtInterval);
+        }
+        this.playAnimation(IMAGES);
+        counter++;
+      }
+    }, 1000 / 5);
+    this.idling = true;
   }
 }

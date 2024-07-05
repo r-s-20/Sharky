@@ -11,6 +11,7 @@ class MovableObject {
   otherDirection = false;
   stopAnimation = false;
   animationInterval;
+  lastHit = 0;
 
   loadImage(path) {
     this.img = new Image();
@@ -69,11 +70,18 @@ class MovableObject {
     // obj.onCollisionCourse;
   }
 
-  isHurt(damage) {
+  hit(damage) {
     this.hp -= damage;
     if (this.hp < 0) {
       this.hp = 0;
+    } else {
+      this.lastHit = new Date().getTime();
     }
+  }
+
+  isHurt() {
+    let timePassed = new Date().getTime() - this.lastHit;
+    return (timePassed/1000) < 2;
   }
 
   isDead() {
