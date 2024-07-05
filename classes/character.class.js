@@ -62,14 +62,15 @@ class Character extends MovableObject {
         } else if (keyboard.LEFT && this.x > -50) {
           this.otherDirection = true;
           this.swim();
-        } else if (keyboard.UP) {
-          this.jump();
         } else {
           if (this.isHurt()) {
             console.log("has a recent hit");
             this.hurt();
           }
           this.idling = true;
+        }
+        if (keyboard.UP) {
+          this.jump();
         }
       }
     }, 1000 / 30);
@@ -138,18 +139,18 @@ class Character extends MovableObject {
   }
 
   hurt(IMAGES = this.IMAGES_HURT_POISON) {
-    this.idling = false;
     this.currentImage = 0;
     let counter = 0;
     let hurtInterval = setInterval(() => {
+      this.idling = false;
       if (!this.isDead()) {
-        if (counter >= IMAGES.length - 1) {
+        if (this.isHurt()) {
           clearInterval(hurtInterval);
         }
         this.playAnimation(IMAGES);
         counter++;
       }
-    }, 1000 / 5);
+    }, 1000 / 30);
     this.idling = true;
   }
 }
