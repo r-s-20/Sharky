@@ -3,23 +3,25 @@ class Character extends MovableObject {
   width = 200;
   speedY = 0;
   speedX = 5;
-  d;
+  offsetX = 38;
+  offsetY = 95;
+  offsetHeight = -137;
+  offsetWidth = -75;
   acceleration = 0.2;
   IMAGES_IDLE = [];
   IMAGES_SWIM = [];
   otherDirection = false;
   intervalAnimation;
   level;
+  world;
   idling = true;
   swimming = false;
-  d;
   woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");
   rain_sound = new Audio("./audio/Rain.ogg");
 
-  // swimming_sound = new Audio( <pfad zum Audio>)
-
-  constructor(level) {
+  constructor(world) {
     super();
+    this.world = world;
     this.x = 50;
     this.y = 50;
     this.loadImagePaths(this.IMAGES_IDLE, 18, "img/1.Sharkie/1.IDLE/");
@@ -30,7 +32,7 @@ class Character extends MovableObject {
 
     this.loadImage(this.IMAGES_IDLE[0]);
     this.animate();
-    this.level = level;
+    this.level = this.world.level;
   }
 
   animate() {
@@ -40,6 +42,11 @@ class Character extends MovableObject {
     let intervalBaseAnimation = setInterval(() => {
       frameCount = frameCount++;
       this.rain_sound.pause();
+      this.world.enemies.forEach((enemy) => {
+        if (this.isColliding(enemy)) {
+          console.log("collision detected");
+        }
+      });
       if (keyboard.RIGHT && this.x < this.level.level_end_x) {
         this.otherDirection = false;
         this.swim();
@@ -102,8 +109,27 @@ class Character extends MovableObject {
 
   drawCollisionRectChar(ctx) {
     ctx.beginPath();
-    ctx.rect(this.x + 38, this.y + 95, this.width - 75, this.height - 137);
+    ctx.rect(
+      this.x + this.offsetX,
+      this.y + this.offsetY,
+      this.width + this.offsetWidth,
+      this.height + this.offsetHeight
+    );
     ctx.strokeStyle = "red";
     ctx.stroke();
+  }
+
+  isColliding(obj) {
+    return (
+      // this.X + this.width >= obj.X &&
+      // this.X <= obj.X + obj.width &&
+      // this.Y + this.offsetY + this.height >= obj.Y &&
+      // this.Y + this.offsetY <= obj.Y + obj.height
+      this.x + this.width >= obj.x &&
+      this.x <= obj.x + obj.width &&
+      this.y + this.height >= obj.y &&
+      this.y <= obj.y + obj.height
+    );
+    // obj.onCollisionCourse;
   }
 }

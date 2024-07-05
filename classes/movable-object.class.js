@@ -41,24 +41,20 @@ class MovableObject {
   }
 
   playAnimation(IMAGES) {
-        let i = this.currentImage % IMAGES.length;
-        let path = IMAGES[i];
-        this.img = this.imageCache[path];
-        this.currentImage++;
-        this.animationRunning = true;
+    let i = this.currentImage % IMAGES.length;
+    let path = IMAGES[i];
+    this.img = this.imageCache[path];
+    this.currentImage++;
+    this.animationRunning = true;
   }
 
   drawCollisionRectOuter(ctx) {
+    // if (this instanceof Character || this instanceof Enemy) {
     ctx.beginPath();
     ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.lineWidth = 2;
     ctx.strokeStyle = "blue";
     ctx.stroke();
+    // }d
   }
-
-  // drawCollisionRectChar(mo) {
-  //   this.ctx.beginPath();
-  //   this.ctx.rect(mo.x + 38, mo.y + 95, mo.width - 75, mo.height - 137);
-  //   this.ctx.strokeStyle = "red";
-  //   this.ctx.stroke();
-  // }
 }

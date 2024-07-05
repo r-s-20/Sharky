@@ -1,7 +1,7 @@
 class World {
   ctx;
   level = level1;
-  character = new Character(this.level);
+  character = new Character(this);
   enemies = this.level.enemies;
   light = this.level.light;
   backgroundObjects = this.level.backgroundObjects;
@@ -14,7 +14,7 @@ class World {
   }
 
   setWorld() {
-    // this.character.world = this;
+    this.character.world = this;
   }
 
   draw() {
@@ -27,14 +27,10 @@ class World {
     this.addObjectsToMap(this.enemies);
     this.addToMap(this.character);
 
-    this.character.drawCollisionRectOuter(this.ctx);
-    this.character.drawCollisionRectChar(this.ctx); 
-    this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
+    this.character.drawCollisionRectChar(this.ctx);
     this.enemies.forEach((enemy) => enemy.drawCollisionRectInner(this.ctx));
-
-
-    // this.drawCollisionRectChar(this.character);
-    // this.drawCollisionRectsFish(this.enemies[0]);
+    this.character.drawCollisionRectOuter(this.ctx);
+    this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
 
     requestAnimationFrame(() => {
       this.draw();
@@ -53,11 +49,15 @@ class World {
     }
     this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
     if (mo.otherDirection) {
-      mo.x = mo.x * -1;
-      this.ctx.restore();
+      this.flipImageBack(mo);
     }
   }
 
+  /**
+   * Flips whole canvas to insert object in mirrored orientation,
+   * corrects position of object for it's width
+   * @param {object} mo - movable Object that is drawn to ctx
+   */
   flipImage(mo) {
     this.ctx.save();
     this.ctx.translate(mo.width, 0);
@@ -65,7 +65,12 @@ class World {
     mo.x = mo.x * -1;
   }
 
-  
-
-  
+  /** Flips the canvas back so next mo will be drawn in
+   * non-mirrored orientation again and resets x-value for mo
+   * @param {object} mo - movable object that is drawn to ctx
+   */
+  flipImageBack(mo) {
+    mo.x = mo.x * -1;
+    this.ctx.restore();
+  }
 }
