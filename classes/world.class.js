@@ -29,8 +29,8 @@ class World {
 
     this.character.drawCollisionRectChar(this.ctx);
     this.enemies.forEach((enemy) => enemy.drawCollisionRectInner(this.ctx));
-    this.character.drawCollisionRectOuter(this.ctx);
-    this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
+    // this.character.drawCollisionRectOuter(this.ctx);
+    // this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
 
     requestAnimationFrame(() => {
       this.draw();

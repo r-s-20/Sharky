@@ -121,14 +121,10 @@ class Character extends MovableObject {
 
   isColliding(obj) {
     return (
-      // this.X + this.width >= obj.X &&
-      // this.X <= obj.X + obj.width &&
-      // this.Y + this.offsetY + this.height >= obj.Y &&
-      // this.Y + this.offsetY <= obj.Y + obj.height
-      this.x + this.width >= obj.x &&
-      this.x <= obj.x + obj.width &&
-      this.y + this.height >= obj.y &&
-      this.y <= obj.y + obj.height
+      this.x + this.offsetX + this.width + this.offsetWidth >= obj.x + obj.offsetX &&
+      this.x + this.offsetX <= obj.x + obj.offsetX + obj.width + obj.offsetWidth &&
+      this.y + this.offsetY + this.height + this.offsetHeight >= obj.y + obj.offsetY &&
+      this.y + this.offsetY <= obj.y + obj.offsetY + obj.height + obj.offsetHeight
     );
     // obj.onCollisionCourse;
   }

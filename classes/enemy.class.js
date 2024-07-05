@@ -1,6 +1,10 @@
 class Enemy extends MovableObject {
   width = 50;
   height = 50;
+  offsetX = 0;
+  offsetY = 0;
+  offsetHeight = -10;
+  offsetWidth = 0;
   IMAGES_SWIM = [];
   swimSpeed;
 
@@ -29,7 +33,7 @@ class Enemy extends MovableObject {
 
   drawCollisionRectInner(ctx) {
     ctx.beginPath();
-    ctx.rect(this.x, this.y, this.width, this.height - 10);
+    ctx.rect(this.x + this.offsetX, this.y + this.offsetY, this.width + this.offsetWidth, this.height + this.offsetHeight);
     ctx.strokeStyle = "red";
     ctx.stroke();
   }

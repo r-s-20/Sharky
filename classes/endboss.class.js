@@ -3,6 +3,10 @@ class Endboss extends MovableObject {
   height = 350;
   x = 300;
   y = 20;
+  offsetX = 12;
+  offsetY = 110;
+  offsetHeight = -160;
+  offsetWidth = -30;
   IMAGES_FLOAT = [];
 
   constructor() {
@@ -20,7 +24,7 @@ class Endboss extends MovableObject {
 
   drawCollisionRectInner(ctx) {
     ctx.beginPath();
-    ctx.rect(this.x+12, this.y+110, this.width-30, this.height - 160);
+    ctx.rect(this.x + this.offsetX, this.y + this.offsetY, this.width + this.offsetWidth, this.height + this.offsetHeight);
     ctx.strokeStyle = "red";
     ctx.stroke();
   }
