@@ -19,7 +19,8 @@ class Character extends MovableObject {
   idling = true;
   swimming = false;
   woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");
-  rain_sound = new Audio("./audio/Rain.ogg");
+  // rain_sound = new Audio("./audio/Rain.ogg");
+  splash_sound = new Audio("./audio/water_splashing.mp3");
 
   constructor(world) {
     super();
@@ -49,7 +50,7 @@ class Character extends MovableObject {
     this.idle();
     this.applyGravity();
     let intervalBaseAnimation = setInterval(() => {
-      this.rain_sound.pause();
+      this.splash_sound.pause();
       if (!this.isDead()) {
         // this.world.enemies.forEach((enemy) => {
         //   if (this.isColliding(enemy)) {
@@ -101,7 +102,7 @@ class Character extends MovableObject {
     } else {
       this.x += this.speedX;
     }
-    this.rain_sound.play();
+    this.splash_sound.play();
     this.playAnimation(this.IMAGES_SWIM);
   }
 
@@ -152,5 +153,19 @@ class Character extends MovableObject {
       }
     }, 1000 / 30);
     this.idling = true;
+  }
+
+  playDeathAnimation() {
+    console.log("playing Death");
+    this.currentImage = 0;
+    let counter = 0;
+    let deathInterval = setInterval(() => {
+      if (counter >= this.IMAGES_DEAD_POISON.length - 1) {
+        clearInterval(deathInterval);
+      }
+      this.playAnimation(this.IMAGES_DEAD_POISON);
+      counter++;
+      // console.log(counter);
+    }, 1000 / 30);
   }
 }

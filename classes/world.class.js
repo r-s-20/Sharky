@@ -23,7 +23,7 @@ class World {
           if (this.character.hp <= 0) {
             this.character.idling = false;
             this.character.loadImage(this.character.IMAGES_DEAD_POISON[0]);
-            world.playDeathAnimation();
+            this.character.playDeathAnimation();
             // } else {
             //   this.character.hurt();
           }
@@ -94,17 +94,5 @@ class World {
     this.ctx.restore();
   }
 
-  playDeathAnimation() {
-    console.log("playing Death");
-    this.character.currentImage = 0;
-    let counter = 0;
-    let deathInterval = setInterval(() => {
-      if (counter >= this.character.IMAGES_DEAD_POISON.length - 1) {
-        clearInterval(deathInterval);
-      }
-      this.character.playAnimation(this.character.IMAGES_DEAD_POISON);
-      counter++;
-      // console.log(counter);
-    }, 1000 / 30);
-  }
+  
 }
