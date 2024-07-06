@@ -6,26 +6,33 @@ class World {
   light = this.level.light;
   backgroundObjects = this.level.backgroundObjects;
   camera_x = 0;
+  gameRunning = true;
+  gameOver = false;
 
   constructor() {
     this.ctx = canvas.getContext("2d");
+    this.update();
     this.draw();
-    this.checkCollisions();
+  }
+
+  update() {
+    if (!this.gameOver) {
+      this.checkCollisions();
+    }
   }
 
   checkCollisions() {
     setInterval(() => {
       this.enemies.forEach((enemy) => {
         if (this.character.isColliding(enemy) && !this.character.isDead()) {
-          // console.log("collision of character with", enemy);
           this.character.hit(2);
-          // console.log("remaining hp:", this.character.hp);
           if (this.character.hp <= 0) {
-            this.character.idling = false;
             this.character.loadImage(this.character.IMAGES_DEAD_POISON[0]);
             this.character.playDeathAnimation();
-            // } else {
-            //   this.character.hurt();
+            setTimeout(() => {
+              this.gameOver = true;
+              console.log("game over");
+            }, 1000);
           }
         }
       });
@@ -42,15 +49,19 @@ class World {
     this.camera_x = -(this.character.x - 50);
     this.ctx.translate(this.camera_x, 0);
 
-    this.addObjectsToMap(this.backgroundObjects);
-    this.addToMap(this.light);
-    this.addObjectsToMap(this.enemies);
-    this.addToMap(this.character);
+    if (this.gameRunning && !this.gameOver) {
+      this.addObjectsToMap(this.backgroundObjects);
+      this.addToMap(this.light);
+      this.addObjectsToMap(this.enemies);
+      this.addToMap(this.character);
 
-    this.character.drawCollisionRectChar(this.ctx);
-    this.enemies.forEach((enemy) => enemy.drawCollisionRectInner(this.ctx));
-    // this.character.drawCollisionRectOuter(this.ctx);
-    // this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
+      // this.character.drawCollisionRectChar(this.ctx);
+      // this.enemies.forEach((enemy) => enemy.drawCollisionRectInner(this.ctx));
+      // this.character.drawCollisionRectOuter(this.ctx);
+      // this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
+    } else {
+      this.gameOverScreen();
+    }
 
     requestAnimationFrame(() => {
       this.draw();
@@ -94,5 +105,12 @@ class World {
     this.ctx.restore();
   }
 
-  
+  gameOverScreen() {
+    console.log("writing game over");
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+    this.ctx.strokeStyle = "white";
+    this.ctx.font = "50px Georgia";
+    this.ctx.strokeText("GAME OVER", this.character.x + 150, canvas.height / 2);
+  }
 }

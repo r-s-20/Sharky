@@ -13,10 +13,22 @@ class Character extends MovableObject {
   IMAGES_DEAD_POISON = [];
   IMAGES_HURT_POISON = [];
   otherDirection = false;
-  intervalAnimation;
+  currentAnimationInterval;
   level;
   world;
-  idling = true;
+  states = ["IDLING", "SWIMMING", "HURT_POISON", "HURT_SHOCK", "ATTACK", "SLEEP", "DEAD"];
+  state = {
+    IDLING: 1,
+    SWIMMING: 2,
+    HURT_POISON: 3,
+    HURT_SHOCK: 4,
+    ATTACK: 5,
+    SLEEP: 6,
+    DEAD: 7,
+  };
+  currentState = this.state.IDLING;
+  hp = 200;
+  // idling = true;
   swimming = false;
   woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");
   // rain_sound = new Audio("./audio/Rain.ogg");
@@ -47,68 +59,73 @@ class Character extends MovableObject {
   }
 
   animate() {
-    this.idle();
     this.applyGravity();
-    let intervalBaseAnimation = setInterval(() => {
-      this.splash_sound.pause();
+    if (this.isDead()) {
+      this.currentState = this.state.DEAD;
+      this.y = 100;
+    }
+
+    setInterval(() => {
       if (!this.isDead()) {
-        // this.world.enemies.forEach((enemy) => {
-        //   if (this.isColliding(enemy)) {
-        //     console.log("collision detected");
-        //   }
-        // });
+        if (this.isHurt()) {
+          // console.log("has a recent hit");
+          this.currentState = this.state.HURT_POISON;
+        }
         if (keyboard.RIGHT && this.x < this.level.level_end_x) {
           this.otherDirection = false;
-          this.swim();
+          this.x += this.speedX;
+          if (this.state != this.state.HURT_POISON) {
+            this.currentState = this.state.SWIMMING;
+          }
         } else if (keyboard.LEFT && this.x > -50) {
           this.otherDirection = true;
-          this.swim();
-        } else {
-          if (this.isHurt()) {
-            console.log("has a recent hit");
-            this.hurt();
+          this.x -= this.speedX;
+          if (this.state != this.state.HURT_POISON) {
+            this.currentState = this.state.SWIMMING;
           }
-          this.idling = true;
+        } else {
+          if (!this.isHurt()) {
+            this.currentState = this.state.IDLING;
+          }
         }
         if (keyboard.UP) {
           this.jump();
         }
       }
-    }, 1000 / 30);
+    }, 1000 / 60);
 
-    // setInterval(() => {
-    //   if (this.isHurt()) {
-    //     console.log("has a recent hit");
-    //     this.hurt();
-    //   }
-    // }, 1000 / 60);
-  }
-
-  idle() {
-    this.intervalAnimation = setInterval(() => {
-      if (this.idling) {
-        let i = this.currentImage % this.IMAGES_IDLE.length;
-        let path = this.IMAGES_IDLE[i];
-        this.img = this.imageCache[path];
-        this.currentImage++;
+    let gameFrame = 0;
+    setInterval(() => {
+      this.splash_sound.pause();
+      gameFrame++;
+      if (!this.isDead()) {
+        if (this.isHurt()) {
+          this.hurt();
+        } else if (this.currentState == this.state.SWIMMING) {
+          this.swim(gameFrame);
+        } else if (this.currentState == this.state.IDLING) {
+          this.idle(gameFrame);
+        }
       }
-    }, 1000 / 15);
+    }, 1000 / 60);
   }
 
-  swim() {
-    this.idling = false;
-    if (this.otherDirection) {
-      this.x -= this.speedX;
-    } else {
-      this.x += this.speedX;
+  idle(gameFrame) {
+    if (gameFrame % 4 == 0) {
+      this.playAnimation(this.IMAGES_IDLE);
     }
+  }
+
+  swim(gameFrame) {
     this.splash_sound.play();
-    this.playAnimation(this.IMAGES_SWIM);
+    if (gameFrame % 6 == 0 && this.currentState == this.state.SWIMMING) {
+      this.playAnimation(this.IMAGES_SWIM);
+    }
   }
 
   applyGravity() {
     setInterval(() => {
-      if (this.isAboveGround() || this.speedY > 0) {
+      if (!this.isDead() && (this.isAboveGround() || this.speedY > 0)) {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
       }
@@ -143,16 +160,16 @@ class Character extends MovableObject {
     this.currentImage = 0;
     let counter = 0;
     let hurtInterval = setInterval(() => {
-      this.idling = false;
+      this.currentState = this.state.HURT_POISON;
       if (!this.isDead()) {
-        if (this.isHurt()) {
+        if (!this.isHurt()) {
           clearInterval(hurtInterval);
         }
         this.playAnimation(IMAGES);
         counter++;
       }
     }, 1000 / 30);
-    this.idling = true;
+    this.currentState = this.state.IDLING;
   }
 
   playDeathAnimation() {
