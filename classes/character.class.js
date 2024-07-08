@@ -3,12 +3,10 @@ import { MovableObject } from "./movable.object.class.js";
 export class Character extends MovableObject {
   height = 200;
   width = 200;
+  position = {x: 50,y: 50}
   speedY = 0;
   speedX = 5;
-  offsetX = 38;
-  offsetY = 95;
-  offsetHeight = -137;
-  offsetWidth = -75;
+  offset = {x: 38, y: 95, height: -137, width: -75};
   acceleration = 0.1;
   IMAGES_IDLE = [];
   IMAGES_SWIM = [];
@@ -40,8 +38,6 @@ export class Character extends MovableObject {
   constructor(world) {
     super();
     this.world = world;
-    this.x = 50;
-    this.y = 50;
     this.hp = this.maxHp;
     this.loadImagePaths(this.IMAGES_IDLE, 18, "img/1.Sharkie/1.IDLE/");
     this.loadImagePaths(this.IMAGES_SWIM, 6, "img/1.Sharkie/3.Swim/");
@@ -66,7 +62,7 @@ export class Character extends MovableObject {
     this.applyGravity();
     if (this.isDead()) {
       this.currentState = this.state.DEAD;
-      this.y = 100;
+      this.position.y = 100;
     }
 
     setInterval(() => {
@@ -76,15 +72,15 @@ export class Character extends MovableObject {
           this.currentState = this.state.HURT_POISON;
           // this.hit_sound.play();
         }
-        if (keyboard.RIGHT && this.x < this.level.level_end_x) {
+        if (keyboard.RIGHT && this.position.x < this.level.level_end_x) {
           this.otherDirection = false;
-          this.x += this.speedX;
+          this.position.x += this.speedX;
           if (this.state != this.state.HURT_POISON) {
             this.currentState = this.state.SWIMMING;
           }
-        } else if (keyboard.LEFT && this.x > -50) {
+        } else if (keyboard.LEFT && this.position.x > -50) {
           this.otherDirection = true;
-          this.x -= this.speedX;
+          this.position.x -= this.speedX;
           if (this.state != this.state.HURT_POISON) {
             this.currentState = this.state.SWIMMING;
           }
@@ -134,15 +130,15 @@ export class Character extends MovableObject {
   applyGravity() {
     setInterval(() => {
       if (!this.isDead() && (this.isAboveGround() || this.speedY > 0)) {
-        this.y -= this.speedY;
+        this.position.y -= this.speedY;
         this.speedY -= this.acceleration;
-        if (this.y <= -100) this.y = -100;
+        if (this.position.y <= -100) this.position.y = -100;
       }
     }, 1000 / 25);
   }
 
   isAboveGround() {
-    return this.y < 230;
+    return this.position.y < 230;
   }
 
   stopAnimation() {
@@ -151,18 +147,6 @@ export class Character extends MovableObject {
 
   jump() {
     this.speedY = 3;
-  }
-
-  drawCollisionRectChar(ctx) {
-    ctx.beginPath();
-    ctx.rect(
-      this.x + this.offsetX,
-      this.y + this.offsetY,
-      this.width + this.offsetWidth,
-      this.height + this.offsetHeight
-    );
-    ctx.strokeStyle = "red";
-    ctx.stroke();
   }
 
   hurt(IMAGES = this.IMAGES_HURT_POISON) {

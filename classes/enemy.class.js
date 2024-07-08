@@ -3,17 +3,14 @@ import { MovableObject } from "./movable.object.class.js";
 export class Enemy extends MovableObject {
   width = 50;
   height = 50;
-  offsetX = 0;
-  offsetY = 0;
-  offsetHeight = -10;
-  offsetWidth = 0;
+  offset = {x: 0, y: 0, height: -10, width: 0};
   IMAGES_SWIM = [];
   swimSpeed;
 
   constructor() {
     super().loadImage("./img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png");
-    this.y = Math.random() * 350;
-    this.x = 200 + Math.random() * 480;
+    this.position.x = 200 + Math.random() * 480;
+    this.position.y = Math.random() * 350;
     this.loadImagePaths(
       this.IMAGES_SWIM,
       5,
@@ -35,7 +32,7 @@ export class Enemy extends MovableObject {
 
   drawCollisionRectInner(ctx) {
     ctx.beginPath();
-    ctx.rect(this.x + this.offsetX, this.y + this.offsetY, this.width + this.offsetWidth, this.height + this.offsetHeight);
+    ctx.rect(this.position.x + this.offsetX, this.position.y + this.offsetY, this.width + this.offsetWidth, this.height + this.offsetHeight);
     ctx.strokeStyle = "red";
     ctx.stroke();
   }

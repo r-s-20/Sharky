@@ -1,8 +1,7 @@
 import { DrawableObject } from "./drawable.object.class.js";
 
 export class StatusBar extends DrawableObject {
-  x = 10;
-  y = 50;
+  position = {x: 10, y: 50};
   height = 60;
   width = 200;
   IMAGES = [];
@@ -16,7 +15,7 @@ export class StatusBar extends DrawableObject {
       2: "COINS",
       3: "BUBBLES",
     };
-    this.y = type == "HP" ? 0 : type == "COINS" ? 40 : 80;
+    this.position.y = type == "HP" ? 0 : type == "COINS" ? 40 : 80;
 
     if (type == "HP") {
       this.selected = "img/4. Marcadores/orange/energy_";

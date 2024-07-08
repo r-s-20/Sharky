@@ -55,7 +55,7 @@ export class World {
     this.statusBarBubbles.update(this.character.bubbles);
 
     if (this.gameRunning && !this.gameOver) {
-      this.camera_x = -(this.character.x - 50);
+      this.camera_x = -(this.character.position.x - 50);
       this.ctx.translate(this.camera_x, 0);
       this.addObjectsToMap(this.backgroundObjects);
       this.addToMap(this.light);
@@ -70,7 +70,7 @@ export class World {
 
       this.addToMap(this.character);
 
-      // this.character.drawCollisionRectChar(this.ctx);
+      // this.character.drawCollisionRect(this.ctx);
       // this.enemies.forEach((enemy) => enemy.drawCollisionRectInner(this.ctx));
       // this.character.drawCollisionRectOuter(this.ctx);
       // this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
@@ -93,7 +93,7 @@ export class World {
     if (mo.otherDirection) {
       this.flipImage(mo);
     }
-    this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+    this.ctx.drawImage(mo.img, mo.position.x, mo.position.y, mo.width, mo.height);
     if (mo.otherDirection) {
       this.flipImageBack(mo);
     }
@@ -120,7 +120,7 @@ export class World {
     this.ctx.save();
     this.ctx.translate(mo.width, 0);
     this.ctx.scale(-1, 1);
-    mo.x = mo.x * -1;
+    mo.position.x = mo.position.x * -1;
   }
 
   /** Flips the canvas back so next mo will be drawn in
@@ -128,7 +128,7 @@ export class World {
    * @param {object} mo - movable object that is drawn to ctx
    */
   flipImageBack(mo) {
-    mo.x = mo.x * -1;
+    mo.position.x = mo.position.x * -1;
     this.ctx.restore();
   }
 
