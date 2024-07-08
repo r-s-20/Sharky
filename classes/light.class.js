@@ -1,4 +1,6 @@
-class Light extends MovableObject {
+import { MovableObject } from "./movable.object.class.js";
+
+export class Light extends MovableObject {
   width = 1200;
   height = 480;
   y = 0;

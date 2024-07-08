@@ -1,4 +1,4 @@
-class DrawableObject {
+export class DrawableObject {
   x = 10;
   y = 10;
   img;

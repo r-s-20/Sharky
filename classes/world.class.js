@@ -1,18 +1,19 @@
-class World {
-  ctx;
-  level = level1;
-  character = new Character(this);
-  enemies = this.level.enemies;
-  light = this.level.light;
-  backgroundObjects = this.level.backgroundObjects;
-  camera_x = 0;
-  gameRunning = true;
-  gameOver = false;
+export class World {
+  // ctx;
+  // level = level1;
+  // character = new Character(this);
+  // enemies = this.level.enemies;
+  // light = this.level.light;
+  // backgroundObjects = this.level.backgroundObjects;
+  // camera_x = 0;
+  // gameRunning = true;
+  // gameOver = false;
 
-  constructor() {
+  constructor(canvas) {
     this.ctx = canvas.getContext("2d");
-    this.update();
-    this.draw();
+    // console.log("testing world", this.ctx);
+    // this.update();
+    // this.draw();
   }
 
   update() {
