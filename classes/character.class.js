@@ -1,5 +1,4 @@
 import { MovableObject } from "./movable.object.class.js";
-import { keyboard } from "../js/game.js";
 
 export class Character extends MovableObject {
   height = 200;
@@ -10,7 +9,7 @@ export class Character extends MovableObject {
   offsetY = 95;
   offsetHeight = -137;
   offsetWidth = -75;
-  acceleration = 0.05;
+  acceleration = 0.1;
   IMAGES_IDLE = [];
   IMAGES_SWIM = [];
   IMAGES_DEAD_POISON = [];
@@ -30,20 +29,20 @@ export class Character extends MovableObject {
     DEAD: 7,
   };
   currentState = this.state.IDLING;
-  hp = 50;
-  coins = 0;
+  maxHp = 150;
+  coins = 10;
   bubbles = 5;
   swimming = false;
   woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");
   splash_sound = new Audio("./audio/water_splashing_short.ogg");
   hit_sound = new Audio("./audio/hit11.mp3.flac");
 
-
   constructor(world) {
     super();
     this.world = world;
     this.x = 50;
     this.y = 50;
+    this.hp = this.maxHp;
     this.loadImagePaths(this.IMAGES_IDLE, 18, "img/1.Sharkie/1.IDLE/");
     this.loadImagePaths(this.IMAGES_SWIM, 6, "img/1.Sharkie/3.Swim/");
     this.loadImagePaths(
@@ -75,7 +74,7 @@ export class Character extends MovableObject {
         if (this.isHurt()) {
           // console.log("has a recent hit");
           this.currentState = this.state.HURT_POISON;
-          this.hit_sound.play();
+          // this.hit_sound.play();
         }
         if (keyboard.RIGHT && this.x < this.level.level_end_x) {
           this.otherDirection = false;
@@ -96,6 +95,8 @@ export class Character extends MovableObject {
         }
         if (keyboard.UP) {
           this.jump();
+        } else if (keyboard.DOWN) {
+          this.speedY = -3;
         }
       }
     }, 1000 / 60);
@@ -124,7 +125,7 @@ export class Character extends MovableObject {
   }
 
   swim(gameFrame) {
-    this.splash_sound.play();
+    // this.splash_sound.play();
     if (gameFrame % 6 == 0 && this.currentState == this.state.SWIMMING) {
       this.playAnimation(this.IMAGES_SWIM);
     }
@@ -135,6 +136,7 @@ export class Character extends MovableObject {
       if (!this.isDead() && (this.isAboveGround() || this.speedY > 0)) {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
+        if (this.y <= -100) this.y = -100;
       }
     }, 1000 / 25);
   }
@@ -180,7 +182,7 @@ export class Character extends MovableObject {
   }
 
   playDeathAnimation() {
-    console.log("playing Death");
+    // console.log("playing Death");
     this.currentImage = 0;
     let counter = 0;
     let deathInterval = setInterval(() => {

@@ -7,15 +7,14 @@ export class World {
   gameOver = false;
 
   constructor(canvas) {
-    
     this.loadLevelContents();
     this.camera_x = 0;
 
     this.ctx = canvas.getContext("2d");
     this.character = new Character(this);
-    this.hpBar = new StatusBar(this.character.hp);
-    this.coinBar = new StatusBar(this.character.coins);
-    this.bubbleBar = new StatusBar(this.character.bubbles);
+    this.statusBarHp = new StatusBar("HP", this.character.maxHp);
+    this.statusBarCoins = new StatusBar("COINS", this.character.coins);
+    this.statusBarBubbles = new StatusBar("BUBBLES", this.character.bubbles);
     this.update();
     this.draw();
   }
@@ -51,6 +50,9 @@ export class World {
 
   draw() {
     this.ctx.reset();
+    this.statusBarHp.update(this.character.hp);
+    this.statusBarCoins.update(this.character.coins);
+    this.statusBarBubbles.update(this.character.bubbles);
 
     if (this.gameRunning && !this.gameOver) {
       this.camera_x = -(this.character.x - 50);
@@ -61,7 +63,9 @@ export class World {
 
       this.ctx.translate(-this.camera_x, 0);
       this.addStatusInfos();
-
+      this.addToMap(this.statusBarHp);
+      this.addToMap(this.statusBarCoins);
+      this.addToMap(this.statusBarBubbles);
       this.ctx.translate(this.camera_x, 0);
 
       this.addToMap(this.character);
@@ -105,7 +109,6 @@ export class World {
     this.ctx.fillText("coins: " + this.character.coins, 20, 70);
     this.ctx.strokeText("bubbles: " + this.character.bubbles, 20, 100);
     this.ctx.fillText("bubbles: " + this.character.bubbles, 20, 100);
-
   }
 
   /**

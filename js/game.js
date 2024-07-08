@@ -1,13 +1,16 @@
 import { World } from "../classes/world.class.js";
 import {Keyboard} from "../classes/keyboard.class.js";
 
+export let keyboard = new Keyboard();
+globalThis.keyboard = keyboard;
+
 let canvas;
 let world;
-export let keyboard = new Keyboard();
 
 window.addEventListener("load", () => {
   canvas = document.getElementById("canvas");
-  world = new World(canvas);
+  globalThis.world = new World(canvas);
+  console.log(world);
 });
 
 
