@@ -1,4 +1,5 @@
 import { MovableObject } from "./movable.object.class.js";
+import { keyboard } from "../js/game.js";
 
 export class Character extends MovableObject {
   height = 200;
@@ -9,7 +10,7 @@ export class Character extends MovableObject {
   offsetY = 95;
   offsetHeight = -137;
   offsetWidth = -75;
-  acceleration = 0.2;
+  acceleration = 0.05;
   IMAGES_IDLE = [];
   IMAGES_SWIM = [];
   IMAGES_DEAD_POISON = [];
@@ -29,12 +30,14 @@ export class Character extends MovableObject {
     DEAD: 7,
   };
   currentState = this.state.IDLING;
-  hp = 200;
-  // idling = true;
+  hp = 50;
+  coins = 0;
+  bubbles = 5;
   swimming = false;
   woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");
-  // rain_sound = new Audio("./audio/Rain.ogg");
-  splash_sound = new Audio("./audio/water_splashing.mp3");
+  splash_sound = new Audio("./audio/water_splashing_short.ogg");
+  hit_sound = new Audio("./audio/hit11.mp3.flac");
+
 
   constructor(world) {
     super();
@@ -72,6 +75,7 @@ export class Character extends MovableObject {
         if (this.isHurt()) {
           // console.log("has a recent hit");
           this.currentState = this.state.HURT_POISON;
+          this.hit_sound.play();
         }
         if (keyboard.RIGHT && this.x < this.level.level_end_x) {
           this.otherDirection = false;
@@ -99,6 +103,7 @@ export class Character extends MovableObject {
     let gameFrame = 0;
     setInterval(() => {
       this.splash_sound.pause();
+      this.splash_sound.loop = true;
       gameFrame++;
       if (!this.isDead()) {
         if (this.isHurt()) {

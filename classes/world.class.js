@@ -1,19 +1,23 @@
+import { level1 } from "../levels/level1.js";
+import { Character } from "./character.class.js";
+import { StatusBar } from "./statusbar.class.js";
+
 export class World {
-  // ctx;
-  // level = level1;
-  // character = new Character(this);
-  // enemies = this.level.enemies;
-  // light = this.level.light;
-  // backgroundObjects = this.level.backgroundObjects;
-  // camera_x = 0;
-  // gameRunning = true;
-  // gameOver = false;
+  gameRunning = true;
+  gameOver = false;
 
   constructor(canvas) {
+    
+    this.loadLevelContents();
+    this.camera_x = 0;
+
     this.ctx = canvas.getContext("2d");
-    // console.log("testing world", this.ctx);
-    // this.update();
-    // this.draw();
+    this.character = new Character(this);
+    this.hpBar = new StatusBar(this.character.hp);
+    this.coinBar = new StatusBar(this.character.coins);
+    this.bubbleBar = new StatusBar(this.character.bubbles);
+    this.update();
+    this.draw();
   }
 
   update() {
@@ -47,13 +51,19 @@ export class World {
 
   draw() {
     this.ctx.reset();
-    this.camera_x = -(this.character.x - 50);
-    this.ctx.translate(this.camera_x, 0);
 
     if (this.gameRunning && !this.gameOver) {
+      this.camera_x = -(this.character.x - 50);
+      this.ctx.translate(this.camera_x, 0);
       this.addObjectsToMap(this.backgroundObjects);
       this.addToMap(this.light);
       this.addObjectsToMap(this.enemies);
+
+      this.ctx.translate(-this.camera_x, 0);
+      this.addStatusInfos();
+
+      this.ctx.translate(this.camera_x, 0);
+
       this.addToMap(this.character);
 
       // this.character.drawCollisionRectChar(this.ctx);
@@ -85,6 +95,19 @@ export class World {
     }
   }
 
+  addStatusInfos() {
+    this.ctx.font = "bold 20px Arial";
+    this.ctx.strokeStyle = "grey";
+    this.ctx.fillStyle = "#CC33AA";
+    this.ctx.strokeText("hp: " + this.character.hp, 20, 40);
+    this.ctx.fillText("hp: " + this.character.hp, 20, 40);
+    this.ctx.strokeText("coins: " + this.character.coins, 20, 70);
+    this.ctx.fillText("coins: " + this.character.coins, 20, 70);
+    this.ctx.strokeText("bubbles: " + this.character.bubbles, 20, 100);
+    this.ctx.fillText("bubbles: " + this.character.bubbles, 20, 100);
+
+  }
+
   /**
    * Flips whole canvas to insert object in mirrored orientation,
    * corrects position of object for it's width
@@ -107,11 +130,20 @@ export class World {
   }
 
   gameOverScreen() {
-    console.log("writing game over");
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
     this.ctx.strokeStyle = "white";
+    this.ctx.strokeWidth = 5;
     this.ctx.font = "50px Georgia";
-    this.ctx.strokeText("GAME OVER", this.character.x + 150, canvas.height / 2);
+    this.ctx.fillStyle = "grey";
+    this.ctx.strokeText("GAME OVER", 210, canvas.height / 2);
+    this.ctx.fillText("GAME OVER", 210, canvas.height / 2);
+  }
+
+  loadLevelContents() {
+    this.level = level1;
+    this.enemies = this.level.enemies;
+    this.light = this.level.light;
+    this.backgroundObjects = this.level.backgroundObjects;
   }
 }
