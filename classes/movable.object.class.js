@@ -46,10 +46,10 @@ export class MovableObject extends DrawableObject {
 
   isColliding(obj) {
     return (
-      this.position.x + this.offset.x + this.width + this.offset.width >= obj.x + obj.offset.x &&
-      this.position.x + this.offset.x <= obj.x + obj.offset.x + obj.width + obj.offset.width &&
-      this.position.y + this.offset.y + this.height + this.offset.height >= obj.y + obj.offset.y &&
-      this.position.y + this.offset.y <= obj.y + obj.offset.y + obj.height + obj.offset.height
+      this.position.x + this.offset.x + this.width + this.offset.width >= obj.position.x + obj.offset.x &&
+      this.position.x + this.offset.x <= obj.position.x + obj.offset.x + obj.width + obj.offset.width &&
+      this.position.y + this.offset.y + this.height + this.offset.height >= obj.position.y + obj.offset.y &&
+      this.position.y + this.offset.y <= obj.position.y + obj.offset.y + obj.height + obj.offset.height
     );
     // obj.onCollisionCourse;
   }

@@ -3,6 +3,7 @@ import { MovableObject } from "./movable.object.class.js";
 export class Enemy extends MovableObject {
   width = 50;
   height = 50;
+  position = {x: 0, y: 0};
   offset = {x: 0, y: 0, height: -10, width: 0};
   IMAGES_SWIM = [];
   swimSpeed;

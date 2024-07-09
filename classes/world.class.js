@@ -27,7 +27,9 @@ export class World {
 
   checkCollisions() {
     setInterval(() => {
+      // console.log("checking collision");
       this.enemies.forEach((enemy) => {
+        // console.log(this.character.isColliding(enemy));
         if (this.character.isColliding(enemy) && !this.character.isDead()) {
           this.character.hit(2);
           if (this.character.hp <= 0) {
@@ -70,10 +72,10 @@ export class World {
 
       this.addToMap(this.character);
 
-      // this.character.drawCollisionRect(this.ctx);
-      // this.enemies.forEach((enemy) => enemy.drawCollisionRectInner(this.ctx));
-      // this.character.drawCollisionRectOuter(this.ctx);
-      // this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
+      this.character.drawCollisionRect(this.ctx);
+      this.enemies.forEach((enemy) => enemy.drawCollisionRect(this.ctx));
+      this.character.drawCollisionRectOuter(this.ctx);
+      this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
     } else {
       this.gameOverScreen();
     }
