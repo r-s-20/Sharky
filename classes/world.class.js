@@ -24,22 +24,23 @@ export class World {
   }
 
   update() {
-    if (!this.gameOver) {
+    let frameCount = 0;
+    let runInterval = setInterval(() => {
+      frameCount++;
+      if (this.gameOver) {
+        clearInterval(runInterval);
+      }
       this.checkCollisions();
-      this.handleBubbles();
+      this.handleBubbles(frameCount);
       this.handleEnemies();
-    }
+    }, 1000 / 30);
   }
 
   checkCollisions() {
-    setInterval(() => {
-      // console.log("checking collision");
-      this.collisionsEnemies();
-
-      this.collisionsCollectables();
-
-      this.collisionsBubbles();
-    }, 1000 / 30);
+    // console.log("checking collision");
+    this.collisionsEnemies();
+    this.collisionsCollectables();
+    this.collisionsBubbles();
   }
 
   collisionsEnemies() {
@@ -81,32 +82,29 @@ export class World {
           // console.log(enemy);
         }
       });
-      if (this.enemies[this.enemies.length-1].hp <= 0) {
+      if (this.enemies[this.enemies.length - 1].hp <= 0) {
         console.log("you won!");
         this.gameOver = true;
       }
     });
   }
 
-  handleBubbles() {
-    setInterval(() => {
+  handleBubbles(frameCount) {
+    if (frameCount % 3 == 0) {
       this.checkThrowing();
-
-      this.bubbles.forEach((bubble, bubbleIndex) => {
-        if (bubble.isDead()) {
-          this.bubbles.splice(bubbleIndex, 1);
-        }
-      });
-    }, 1000 / 10);
+    }
+    this.bubbles.forEach((bubble, bubbleIndex) => {
+      if (bubble.isDead()) {
+        this.bubbles.splice(bubbleIndex, 1);
+      }
+    });
   }
 
   handleEnemies() {
-    setInterval(() => {
-      this.enemies.forEach((enemy, index) => {
-        if (enemy.isDead()) {
-          this.enemies.splice(index, 1);
-        }
-      }, 1000 / 10);
+    this.enemies.forEach((enemy, index) => {
+      if (enemy.isDead()) {
+        this.enemies.splice(index, 1);
+      }
     });
   }
 
@@ -132,16 +130,15 @@ export class World {
     this.statusBarCoins.update(this.character.coins);
     this.statusBarBubbles.update(this.character.bubbles);
 
-    if (this.gameRunning && !this.gameOver) {
-      this.drawGameContents();
-    } else if (this.gameRunning && this.gameOver) {
-      if (this.character.hp <= 0){
-      this.renderGameOver("GAME OVER");
-    } else {
-      this.renderGameOver("YOU WIN!");
+    // if (this.gameRunning && !this.gameOver) {
+    this.drawGameContents();
+    // } else if (this.gameRunning && this.gameOver) {
+    if (this.character.hp <= 0 && this.gameOver) {
+      this.renderEndScreen("GAME OVER");
+    } else if (this.gameOver && this.character.hp > 0) {
+      this.renderEndScreen("YOU WIN!");
     }
-    } 
-
+    // }
 
     requestAnimationFrame(() => {
       this.draw();
@@ -218,13 +215,13 @@ export class World {
     this.ctx.fillText("bubbles: " + this.character.bubbles, 20, 100);
   }
 
-  renderGameOver(message) {
-    this.ctx.fillStyle = "black";
+  renderEndScreen(message) {
+    this.ctx.fillStyle = "rgba(0,0,0,0.3)";
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
     this.ctx.strokeStyle = "white";
     this.ctx.strokeWidth = 5;
     this.ctx.font = "50px Georgia";
-    this.ctx.fillStyle = "grey";
+    this.ctx.fillStyle = "yellow";
     this.ctx.strokeText(message, 210, canvas.height / 2);
     this.ctx.fillText(message, 210, canvas.height / 2);
     // this.addToMap(this.gameOverScreen);

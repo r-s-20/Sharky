@@ -68,7 +68,7 @@ export class Character extends MovableObject {
     }
 
     setInterval(() => {
-      if (!this.isDead()) {
+      if (!this.isDead() && !this.world.gameOver) {
         if (this.isHurt()) {
           // console.log("has a recent hit");
           this.currentState = this.state.HURT_POISON;
@@ -94,7 +94,7 @@ export class Character extends MovableObject {
         if (keyboard.UP) {
           this.jump();
         } else if (keyboard.DOWN) {
-          this.speedY = -3;
+          this.jump(-1);
         }
       }
     }, 1000 / 60);
@@ -131,7 +131,7 @@ export class Character extends MovableObject {
 
   applyGravity() {
     setInterval(() => {
-      if (!this.isDead() && (this.isAboveGround() || this.speedY > 0)) {
+      if (!this.isDead() && !this.world.gameOver && (this.isAboveGround() || this.speedY > 0)) {
         this.position.y -= this.speedY;
         this.speedY -= this.acceleration;
         if (this.position.y <= -100) this.position.y = -100;
@@ -147,8 +147,8 @@ export class Character extends MovableObject {
     clearInterval(this.animationInterval);
   }
 
-  jump() {
-    this.speedY = 3;
+  jump(dir = 1) {
+    this.speedY = 4*dir;
   }
 
   hurt(IMAGES = this.IMAGES_HURT_POISON) {
