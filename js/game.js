@@ -10,7 +10,6 @@ let world;
 window.addEventListener("load", () => {
   canvas = document.getElementById("canvas");
   globalThis.world = new World(canvas);
-  console.log(world);
 });
 
 

@@ -138,7 +138,7 @@ export class Character extends MovableObject {
   }
 
   isAboveGround() {
-    return this.position.y < 230;
+    return this.position.y < 250;
   }
 
   stopAnimation() {

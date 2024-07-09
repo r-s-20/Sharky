@@ -58,24 +58,25 @@ export class World {
 
     if (this.gameRunning && !this.gameOver) {
       this.camera_x = -(this.character.position.x - 50);
+
       this.ctx.translate(this.camera_x, 0);
       this.addObjectsToMap(this.backgroundObjects);
       this.addToMap(this.light);
       this.addObjectsToMap(this.enemies);
 
       this.ctx.translate(-this.camera_x, 0);
-      this.addStatusInfos();
+      // this.addStatusInfos();
       this.addToMap(this.statusBarHp);
       this.addToMap(this.statusBarCoins);
       this.addToMap(this.statusBarBubbles);
       this.ctx.translate(this.camera_x, 0);
 
       this.addToMap(this.character);
-
-      this.character.drawCollisionRect(this.ctx);
-      this.enemies.forEach((enemy) => enemy.drawCollisionRect(this.ctx));
-      this.character.drawCollisionRectOuter(this.ctx);
-      this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
+      this.ctx.translate(-this.camera_x, 0);
+      // this.character.drawCollisionRect(this.ctx);
+      // this.enemies.forEach((enemy) => enemy.drawCollisionRect(this.ctx));
+      // this.character.drawCollisionRectOuter(this.ctx);
+      // this.enemies.forEach((enemy) => enemy.drawCollisionRectOuter(this.ctx));
     } else {
       this.gameOverScreen();
     }

@@ -27,7 +27,7 @@ export class Enemy extends MovableObject {
   }
 
   swimLeft() {
-    this.moveLeft(1000 / 15, this.swimSpeed);
+    // this.moveLeft(1000 / 15, this.swimSpeed);
     setInterval(() => this.playAnimation(this.IMAGES_SWIM), 1000 / 15);
   }
 
