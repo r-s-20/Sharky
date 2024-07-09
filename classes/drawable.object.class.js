@@ -28,6 +28,9 @@ export class DrawableObject {
     let path = IMAGES[i];
     this.img = this.imageCache[path];
     this.currentImage++;
-    this.animationRunning = true;
+  }
+
+  draw(ctx) {
+    ctx.drawImage(this.img, this.position.x, this.position.y, this.width, this.height);
   }
 }

@@ -3,6 +3,7 @@ import { MovableObject } from "./movable.object.class.js";
 export class Enemy extends MovableObject {
   width = 50;
   height = 50;
+  hp = 10;
   position = {x: 0, y: 0};
   offset = {x: 0, y: 0, height: -10, width: 0};
   IMAGES_SWIM = [];
@@ -10,7 +11,7 @@ export class Enemy extends MovableObject {
 
   constructor() {
     super().loadImage("./img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png");
-    this.position.x = 200 + Math.random() * 480;
+    this.position.x = 300 + Math.random() * 1000;
     this.position.y = Math.random() * 350;
     this.loadImagePaths(
       this.IMAGES_SWIM,
@@ -27,7 +28,7 @@ export class Enemy extends MovableObject {
   }
 
   swimLeft() {
-    // this.moveLeft(1000 / 15, this.swimSpeed);
+    this.autoMoveLeft(1000 / 15, this.swimSpeed);
     setInterval(() => this.playAnimation(this.IMAGES_SWIM), 1000 / 15);
   }
 

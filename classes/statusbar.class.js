@@ -3,12 +3,13 @@ import { DrawableObject } from "./drawable.object.class.js";
 export class StatusBar extends DrawableObject {
   position = { x: 10, y: 50 };
   height = 60;
-  width = 200;
+  width = 220;
+  maxValue;
   IMAGES = [];
   statusBarPaths = {
-    "HP": "img/4. Marcadores/orange/energy_",
-    "COINS": "img/4. Marcadores/orange/coins_",
-    "BUBBLES": "img/4. Marcadores/orange/bubbles_",
+    "HP": "../img/4. Marcadores/orange/energy_",
+    "COINS": "../img/4. Marcadores/orange/coins_",
+    "BUBBLES": "../img/4. Marcadores/orange/bubbles_",
   };
   statusBarPositions = {
     "HP": 0,
@@ -22,6 +23,7 @@ export class StatusBar extends DrawableObject {
     this.position.y = this.statusBarPositions[type];
 
     this.loadImagePaths(this.IMAGES, 6, this.statusBarPaths[type]);
+    this.loadImages(this.IMAGES);
     this.loadImage(this.IMAGES[5]);
   }
 

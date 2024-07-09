@@ -28,7 +28,9 @@ export class Character extends MovableObject {
   };
   currentState = this.state.IDLING;
   maxHp = 150;
-  coins = 10;
+  maxCoins = 5;
+  coins = 0;
+  maxBubbles=10;
   bubbles = 5;
   swimming = false;
   woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");

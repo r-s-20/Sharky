@@ -3,6 +3,7 @@ import { MovableObject } from "./movable.object.class.js";
 export class Endboss extends MovableObject {
   width = 350;
   height = 350;
+  hp=30;
   position = {x: 1400, y: 20 };
   offset = {x: 12, y: 150, height: -200, width: -30};
   IMAGES_FLOAT = [];

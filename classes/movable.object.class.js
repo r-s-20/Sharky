@@ -1,11 +1,11 @@
 import { DrawableObject } from "./drawable.object.class.js";
 
 export class MovableObject extends DrawableObject {
-  position= {x: 200, y:100};
+  position = { x: 200, y: 100 };
   height = 100;
   width = 100;
   maxHp = 100;
-  offset = {x: 0, y: 0, height: 0, width: 0};
+  offset = { x: 0, y: 0, height: 0, width: 0 };
   movingInterval;
   otherDirection = false;
   stopAnimation = false;
@@ -16,7 +16,11 @@ export class MovableObject extends DrawableObject {
     this.position.x += step;
   }
 
-  moveLeft(speed = 1000 / 60, step = 1) {
+  moveLeft(step = 10) {
+    this.position.x -= step;
+  }
+
+  autoMoveLeft(speed = 1000 / 60, step = 1) {
     this.movingInterval = setInterval(() => {
       this.position.x -= step;
     }, speed);
@@ -46,10 +50,14 @@ export class MovableObject extends DrawableObject {
 
   isColliding(obj) {
     return (
-      this.position.x + this.offset.x + this.width + this.offset.width >= obj.position.x + obj.offset.x &&
-      this.position.x + this.offset.x <= obj.position.x + obj.offset.x + obj.width + obj.offset.width &&
-      this.position.y + this.offset.y + this.height + this.offset.height >= obj.position.y + obj.offset.y &&
-      this.position.y + this.offset.y <= obj.position.y + obj.offset.y + obj.height + obj.offset.height
+      this.position.x + this.offset.x + this.width + this.offset.width >=
+        obj.position.x + obj.offset.x &&
+      this.position.x + this.offset.x <=
+        obj.position.x + obj.offset.x + obj.width + obj.offset.width &&
+      this.position.y + this.offset.y + this.height + this.offset.height >=
+        obj.position.y + obj.offset.y &&
+      this.position.y + this.offset.y <=
+        obj.position.y + obj.offset.y + obj.height + obj.offset.height
     );
     // obj.onCollisionCourse;
   }

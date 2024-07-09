@@ -4,6 +4,7 @@ export class Keyboard {
   UP = false;
   DOWN = false;
   SPACE = false;
+  SHOOT = false;
 
   constructor() {
     window.addEventListener("keydown", (e) => {
@@ -36,11 +37,14 @@ export class Keyboard {
         case " ":
           this.SPACE = true;
           break;
+        case "e":
+          this.SHOOT = true;
+          break;
       }
       // console.log(e);
       // console.log(this);
     });
-    
+
     window.addEventListener("keyup", (e) => {
       switch (e.key) {
         case "ArrowUp":
@@ -69,6 +73,9 @@ export class Keyboard {
           break;
         case " ":
           this.SPACE = false;
+          break;
+        case "e":
+          this.SHOOT = false;
           break;
       }
       // console.log("release", this);

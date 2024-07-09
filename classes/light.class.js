@@ -11,7 +11,7 @@ export class Light extends MovableObject {
   }
 
   animate() {
-    this.moveLeft(1000/60, 0.15);
+    this.autoMoveLeft(1000/60, 0.15);
   //   let intervalId = setInterval(() => {
   //     if (this.x <= -400) {
   //       clearInterval(intervalId);
