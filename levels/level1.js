@@ -5,40 +5,43 @@ import { Light } from "../classes/light.class.js";
 import { BackgroundObject } from "../classes/background.object.class.js";
 import { CollectableObject } from "../classes/collectable-object.class.js";
 
-export const level1 = new Level(
-  [new Enemy(), new Enemy(), new Enemy(), new Endboss()],
-  new Light(),
-  [
-    new BackgroundObject("img/3. Background/Layers/5. Water/D2.png", -720),
-    new BackgroundObject("img/3. Background/Layers/4.Fondo 2/D2.png", -720),
-    new BackgroundObject("img/3. Background/Layers/3.Fondo 1/D2.png", -720),
-    new BackgroundObject("img/3. Background/Layers/2. Floor/D2.png", -720),
+export function createLevel1() {
+  const level1 = new Level(
+    [new Enemy(), new Enemy(), new Enemy(), new Endboss()],
+    new Light(),
+    [
+      new BackgroundObject("img/3. Background/Layers/5. Water/D2.png", -720),
+      new BackgroundObject("img/3. Background/Layers/4.Fondo 2/D2.png", -720),
+      new BackgroundObject("img/3. Background/Layers/3.Fondo 1/D2.png", -720),
+      new BackgroundObject("img/3. Background/Layers/2. Floor/D2.png", -720),
 
-    new BackgroundObject("img/3. Background/Layers/5. Water/D1.png", 0),
-    new BackgroundObject("img/3. Background/Layers/4.Fondo 2/D1.png", 0),
-    new BackgroundObject("img/3. Background/Layers/3.Fondo 1/D1.png", 0),
-    new BackgroundObject("img/3. Background/Layers/2. Floor/D1.png", 0),
+      new BackgroundObject("img/3. Background/Layers/5. Water/D1.png", 0),
+      new BackgroundObject("img/3. Background/Layers/4.Fondo 2/D1.png", 0),
+      new BackgroundObject("img/3. Background/Layers/3.Fondo 1/D1.png", 0),
+      new BackgroundObject("img/3. Background/Layers/2. Floor/D1.png", 0),
 
-    new BackgroundObject("img/3. Background/Layers/5. Water/D2.png", 720),
-    new BackgroundObject("img/3. Background/Layers/4.Fondo 2/D2.png", 720),
-    new BackgroundObject("img/3. Background/Layers/3.Fondo 1/D2.png", 720),
-    new BackgroundObject("img/3. Background/Layers/2. Floor/D2.png", 720),
+      new BackgroundObject("img/3. Background/Layers/5. Water/D2.png", 720),
+      new BackgroundObject("img/3. Background/Layers/4.Fondo 2/D2.png", 720),
+      new BackgroundObject("img/3. Background/Layers/3.Fondo 1/D2.png", 720),
+      new BackgroundObject("img/3. Background/Layers/2. Floor/D2.png", 720),
 
-    new BackgroundObject("img/3. Background/Layers/5. Water/D1.png", 1440),
-    new BackgroundObject("img/3. Background/Layers/4.Fondo 2/D1.png", 1440),
-    new BackgroundObject("img/3. Background/Layers/3.Fondo 1/D1.png", 1440),
-    new BackgroundObject("img/3. Background/Layers/2. Floor/D1.png", 1440),
-  ],
-  [
-    new CollectableObject("POISON"),
-    new CollectableObject("POISON"),
-    new CollectableObject("POISON"),
-    new CollectableObject("POISON"),
-    new CollectableObject("POISON"),
-    new CollectableObject("COIN"),
-    new CollectableObject("COIN"),
-    new CollectableObject("COIN"),
-    new CollectableObject("COIN"),
-    new CollectableObject("COIN"),
-  ]
-);
+      new BackgroundObject("img/3. Background/Layers/5. Water/D1.png", 1440),
+      new BackgroundObject("img/3. Background/Layers/4.Fondo 2/D1.png", 1440),
+      new BackgroundObject("img/3. Background/Layers/3.Fondo 1/D1.png", 1440),
+      new BackgroundObject("img/3. Background/Layers/2. Floor/D1.png", 1440),
+    ],
+    [
+      new CollectableObject("POISON"),
+      new CollectableObject("POISON"),
+      new CollectableObject("POISON"),
+      new CollectableObject("POISON"),
+      new CollectableObject("POISON"),
+      new CollectableObject("COIN"),
+      new CollectableObject("COIN"),
+      new CollectableObject("COIN"),
+      new CollectableObject("COIN"),
+      new CollectableObject("COIN"),
+    ]
+  );
+  return level1;
+}

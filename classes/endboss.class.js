@@ -48,6 +48,7 @@ export class Endboss extends MovableObject {
       this.clearAllAnimationIntervals();
       let gameFrame = 0;
       let floatInterval = setInterval(() => {
+        this.update();
         if (this.isHurt()) {
           this.state = "HURT";
           this.playHurtAnimation();

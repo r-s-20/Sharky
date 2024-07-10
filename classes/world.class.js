@@ -1,4 +1,4 @@
-import { level1 } from "../levels/level1.js";
+import { createLevel1 } from "../levels/level1.js";
 import { Character } from "./character.class.js";
 import { DrawableObject } from "./drawable.object.class.js";
 import { StatusBar } from "./statusbar.class.js";
@@ -15,6 +15,7 @@ export class World {
   bubbles = [];
   creatingBubble = false;
   gameOverScreen;
+  level;
 
   constructor(canvas) {
     this.gameState = "START";
@@ -159,7 +160,6 @@ export class World {
   checkFinalBossEntry() {
     let finalEnemy = this.enemies[this.enemies.length - 1];
     if (this.character.position.x > 1000 && !finalEnemy.hasEntered) {
-      console.log("final boss entering area");
       finalEnemy.currentImage = 0;
       finalEnemy.introAnimation();
       finalEnemy.position.y = 0;
@@ -176,7 +176,7 @@ export class World {
     if (this.gameState == "START") {
       this.renderStartScreen("Press ENTER to start game");
     } else if (this.gameState == "LOADING") {
-      this.renderStartScreen("loading...");
+      this.renderStartScreen("Level 1 loading...");
     }
     if (this.gameState == "RUNNING" || this.gameState == "GAMEOVER") {
       this.drawGameContents();
@@ -288,7 +288,7 @@ export class World {
   }
 
   loadLevelContents() {
-    this.level = level1;
+    this.level = createLevel1();
     this.enemies = this.level.enemies;
     this.light = this.level.light;
     this.backgroundObjects = this.level.backgroundObjects;
