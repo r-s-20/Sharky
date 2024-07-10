@@ -4,6 +4,8 @@ export class MovableObject extends DrawableObject {
   position = { x: 200, y: 100 };
   height = 100;
   width = 100;
+  speedY = 0;
+  speedX = 0;
   maxHp = 100;
   offset = { x: 0, y: 0, height: 0, width: 0 };
   movingInterval;
@@ -11,6 +13,21 @@ export class MovableObject extends DrawableObject {
   stopAnimation = false;
   animationInterval;
   lastHit = 0;
+
+  IMAGES = {
+    DEAD: [],
+  };
+
+  state = {
+    DEAD: "DEAD",
+  };
+
+  loadImagesToCache() {
+    console.log("loading image cache for", Object.keys(this.state));
+    Object.keys(this.state).forEach((state) => {
+      this.loadImages(this.IMAGES[state]);
+    });
+  }
 
   moveRight(step = 10) {
     this.position.x += step;
@@ -20,10 +37,22 @@ export class MovableObject extends DrawableObject {
     this.position.x -= step;
   }
 
+  moveUp(step = 10) {
+    this.position.y -= step;
+  }
+
   autoMoveLeft(speed = 1000 / 60, step = 1) {
     this.movingInterval = setInterval(() => {
       this.position.x -= step;
     }, speed);
+    return this.movingInterval;
+  }
+
+  autoMoveUp(speed = 1000 / 60, step = 1) {
+    this.movingInterval = setInterval(() => {
+      this.position.y -= step;
+    }, speed);
+    return this.movingInterval;
   }
 
   drawCollisionRectOuter(ctx) {

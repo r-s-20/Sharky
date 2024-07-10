@@ -9,7 +9,6 @@ export class Character extends MovableObject {
   offset = { x: 38, y: 95, height: -137, width: -75 };
   acceleration = 0.1;
   otherDirection = false;
-  currentAnimationInterval;
   level;
   world;
 
@@ -17,45 +16,47 @@ export class Character extends MovableObject {
     IDLE: [],
     SWIM: [],
     HURT_POISON: [],
-    HURT_SHOCK: [],
-    ATTACK: [],
-    SLEEP: [],
+    // HURT_SHOCK: [],
+    // ATTACK: [],
+    // SLEEP: [],
     DEAD: [],
   };
 
   state = {
-    IDLE: 1,
-    SWIM: 2,
-    HURT_POISON: 3,
-    HURT_SHOCK: 4,
-    ATTACK: 5,
-    SLEEP: 6,
-    DEAD: 7,
+    IDLE: "IDLE",
+    SWIM: "SWIM",
+    HURT_POISON: "HURT_POISON",
+    // HURT_SHOCK: "HURT_SHOCK",
+    // ATTACK: "ATTACK",
+    // SLEEP: "SLEEP",
+    DEAD: "DEAD",
   };
+
   currentState = this.state.IDLE;
   maxHp = 150;
+  hp = 20;
   maxCoins = 5;
   coins = 0;
   maxBubbles = 10;
   bubbles = 5;
   swimming = false;
-  woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");
-  splash_sound = new Audio("./audio/water_splashing_short.ogg");
-  hit_sound = new Audio("./audio/hit11.mp3.flac");
+  woosh_sound = new Audio("../audio/Arm Whoosh A.ogg");
+  splash_sound = new Audio("../audio/water_splashing_short.ogg");
+  hit_sound = new Audio("../audio/hit11.mp3.flac");
 
   constructor(world) {
     super();
     this.world = world;
-    this.hp = this.maxHp;
-    this.loadImagePaths(this.IMAGES.IDLE, 18, "img/1.Sharkie/1.IDLE/");
-    this.loadImagePaths(this.IMAGES.SWIM, 6, "img/1.Sharkie/3.Swim/");
-    this.loadImagePaths(this.IMAGES.DEAD, 12, "./img/1.Sharkie/6.dead/1.Poisoned/");
-    this.loadImagePaths(this.IMAGES.HURT_POISON, 4, "img/1.Sharkie/5.Hurt/1.Poisoned/");
+    this.loadImagePaths(this.IMAGES.IDLE, 18, "../img/1.Sharkie/1.IDLE/");
+    this.loadImagePaths(this.IMAGES.SWIM, 6, "../img/1.Sharkie/3.Swim/");
+    this.loadImagePaths(this.IMAGES.DEAD, 12, "../img/1.Sharkie/6.dead/1.Poisoned/");
+    this.loadImagePaths(
+      this.IMAGES.HURT_POISON,
+      4,
+      "../img/1.Sharkie/5.Hurt/1.Poisoned/"
+    );
 
-    this.loadImages(this.IMAGES.IDLE);
-    this.loadImages(this.IMAGES.SWIM);
-    this.loadImages(this.IMAGES.DEAD);
-    this.loadImages(this.IMAGES.HURT_POISON);
+    this.loadImagesToCache();
 
     this.loadImage(this.IMAGES.IDLE[0]);
     this.animate();
@@ -141,6 +142,9 @@ export class Character extends MovableObject {
         this.position.y -= this.speedY;
         this.speedY -= this.acceleration;
         if (this.position.y <= -100) this.position.y = -100;
+      } else if (this.isDead()) {
+        this.position.y -= 2;
+        if (this.position.y <= -50) this.position.y = -50;
       }
     }, 1000 / 25);
   }

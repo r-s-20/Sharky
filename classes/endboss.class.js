@@ -3,11 +3,11 @@ import { MovableObject } from "./movable.object.class.js";
 export class Endboss extends MovableObject {
   width = 350;
   height = 350;
-  hp = 10;
-  position = { x: 500, y: 20 };
+  hp = 30;
+  position = { x: 1300, y: 20 };
   offset = { x: 12, y: 150, height: -200, width: -30 };
-  
-  IMAGES = {INTRO: [],FLOAT: [],ATTACK: [],HURT: [],DEAD: [],}
+
+  IMAGES = { INTRO: [], FLOAT: [], ATTACK: [], HURT: [], DEAD: [] };
 
   state = {
     INTRO: "INTRO",
@@ -27,31 +27,30 @@ export class Endboss extends MovableObject {
 
   constructor() {
     super();
-    this.state = "FLOAT";
+    
+
     this.loadImagePaths(
       this.IMAGES.INTRO,
       10,
       "../img/2.Enemy/3 Final Enemy/1.Introduce/"
     );
-    this.loadImages(this.IMAGES.INTRO);
     this.loadImagePaths(
       this.IMAGES.FLOAT,
       13,
       "../img/2.Enemy/3 Final Enemy/2.floating/"
     );
-    this.loadImages(this.IMAGES.FLOAT);
     this.loadImagePaths(this.IMAGES.ATTACK, 6, "../img/2.Enemy/3 Final Enemy/Attack/");
-    this.loadImages(this.IMAGES.ATTACK);
     this.loadImagePaths(this.IMAGES.HURT, 4, "../img/2.Enemy/3 Final Enemy/Hurt/");
-    this.loadImages(this.IMAGES.HURT);
     this.loadImagePaths(
       this.IMAGES.DEAD,
       6,
       "../img/2.Enemy/3 Final Enemy/Dead/Mesa de trabajo 2_"
     );
-    this.loadImages(this.IMAGES.DEAD);
+
+    this.loadImagesToCache();
 
     this.loadImage(this.IMAGES.FLOAT[0]);
+    this.state = "FLOAT";
     this.animate();
   }
 
@@ -73,6 +72,4 @@ export class Endboss extends MovableObject {
   }
 
   playAnimationLoop(state) {}
-
-   
 }

@@ -58,7 +58,6 @@ export class World {
       ) {
         this.character.hit(2);
         if (this.character.hp <= 0) {
-          this.character.loadImage(this.character.IMAGES_DEAD_POISON[0]);
           this.character.playDeathAnimation();
           setTimeout(() => {
             this.gameState = "GAMEOVER";
@@ -111,7 +110,9 @@ export class World {
     this.enemies.forEach((enemy, index) => {
       if (enemy.isDead()) {
         enemy.update();
-        // this.enemies.splice(index, 1);
+        if (enemy.position.y <= -20) {
+          this.enemies.splice(index, 1);
+        }
         // console.log("is dead:", enemy);
       }
     });
