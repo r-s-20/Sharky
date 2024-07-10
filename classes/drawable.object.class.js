@@ -1,8 +1,9 @@
 export class DrawableObject {
-  position = {x: 10, y: 10 };
+  position = { x: 10, y: 10 };
   img;
   imageCache = {};
   currentImage = 0;
+  animationIntervals = [];
 
   loadImage(path) {
     this.img = new Image();
@@ -23,6 +24,10 @@ export class DrawableObject {
     });
   }
 
+  draw(ctx) {
+    ctx.drawImage(this.img, this.position.x, this.position.y, this.width, this.height);
+  }
+
   playAnimation(IMAGES) {
     let i = this.currentImage % IMAGES.length;
     let path = IMAGES[i];
@@ -30,7 +35,7 @@ export class DrawableObject {
     this.currentImage++;
   }
 
-  draw(ctx) {
-    ctx.drawImage(this.img, this.position.x, this.position.y, this.width, this.height);
+  clearAllAnimationIntervals() {
+    this.animationIntervals.forEach((interval) => clearInterval(interval));
   }
 }

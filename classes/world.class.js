@@ -5,11 +5,17 @@ import { StatusBar } from "./statusbar.class.js";
 import { ThrowableObject } from "./throwable-object.class.js";
 
 export class World {
-  gameRunning = true;
-  gameOver = false;
+  gameState = {
+    START: "START",
+    RUNNING: "RUNNING",
+    PAUSED: "PAUSED",
+    GAMEOVER: "GAMEOVER",
+  };
   bubbles = [];
   gameOverScreen;
+
   constructor(canvas) {
+    this.gameState = "RUNNING";
     this.loadLevelContents();
     this.loadScreens();
     this.camera_x = 0;
@@ -27,7 +33,7 @@ export class World {
     let frameCount = 0;
     let runInterval = setInterval(() => {
       frameCount++;
-      if (this.gameOver) {
+      if (this.gameState == "GAMEOVER") {
         clearInterval(runInterval);
       }
       this.checkCollisions();
@@ -52,7 +58,7 @@ export class World {
           this.character.loadImage(this.character.IMAGES_DEAD_POISON[0]);
           this.character.playDeathAnimation();
           setTimeout(() => {
-            this.gameOver = true;
+            this.gameState = "GAMEOVER";
             console.log("game over");
           }, 1000);
         }
@@ -83,8 +89,9 @@ export class World {
         }
       });
       if (this.enemies[this.enemies.length - 1].hp <= 0) {
-        console.log("you won!");
-        this.gameOver = true;
+        this.enemies[3].update();
+        console.log("you win!");
+        this.gameState = "GAMEOVER";
       }
     });
   }
@@ -103,7 +110,8 @@ export class World {
   handleEnemies() {
     this.enemies.forEach((enemy, index) => {
       if (enemy.isDead()) {
-        this.enemies.splice(index, 1);
+        // this.enemies.splice(index, 1);
+        console.log("is dead:", enemy);
       }
     });
   }
@@ -130,12 +138,15 @@ export class World {
     this.statusBarCoins.update(this.character.coins);
     this.statusBarBubbles.update(this.character.bubbles);
 
-    // if (this.gameRunning && !this.gameOver) {
+    // bei der auskommentierten Version wird beim Gameover-Screen nichts
+    // mehr vom Game angezeigt => habe in der aktuellen Version stattdessen Opacity, sieht
+    // schöner aus
+    // if (this.gameState == "RUNNING") {
     this.drawGameContents();
-    // } else if (this.gameRunning && this.gameOver) {
-    if (this.character.hp <= 0 && this.gameOver) {
+    // } else if (this.gameState == "GAMEOVER") {
+    if (this.character.hp <= 0 && this.gameState == "GAMEOVER") {
       this.renderEndScreen("GAME OVER");
-    } else if (this.gameOver && this.character.hp > 0) {
+    } else if (this.gameState == "GAMEOVER" && this.character.hp > 0) {
       this.renderEndScreen("YOU WIN!");
     }
     // }

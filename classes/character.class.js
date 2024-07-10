@@ -131,7 +131,7 @@ export class Character extends MovableObject {
 
   applyGravity() {
     setInterval(() => {
-      if (!this.isDead() && !this.world.gameOver && (this.isAboveGround() || this.speedY > 0)) {
+      if (!this.isDead() && this.world.gameState !== "GAMEOVER" && (this.isAboveGround() || this.speedY > 0)) {
         this.position.y -= this.speedY;
         this.speedY -= this.acceleration;
         if (this.position.y <= -100) this.position.y = -100;
