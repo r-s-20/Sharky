@@ -7,32 +7,19 @@ export class Endboss extends MovableObject {
   position = { x: 500, y: 20 };
   offset = { x: 12, y: 150, height: -200, width: -30 };
   
-
-  IMAGES_INTRO = [];
-  IMAGES_FLOAT = [];
-  IMAGES_ATTACK = [];
-  IMAGES_HURT = [];
-  IMAGES_DEAD = [];
+  IMAGES = {INTRO: [],FLOAT: [],ATTACK: [],HURT: [],DEAD: [],}
 
   state = {
     INTRO: "INTRO",
-    FLOATING: "FLOATING",
+    FLOAT: "FLOAT",
     ATTACK: "ATTACK",
     HURT: "HURT",
     DEAD: "DEAD",
   };
 
-  stateImages = {
-    "INTRO": this.IMAGES_INTRO,
-    "FLOATING": this.IMAGES_FLOAT,
-    "ATTACK": this.IMAGES_ATTACK,
-    "HURT": this.IMAGES_HURT,
-    "DEAD": this.IMAGES_DEAD,
-  };
-
   animationSpeed = {
     "INTRO": 1000 / 4,
-    "FLOATING": 1000 / 4,
+    "FLOAT": 1000 / 4,
     "ATTACK": 1000 / 4,
     "HURT": 1000 / 4,
     "DEAD": 1000 / 15,
@@ -40,40 +27,40 @@ export class Endboss extends MovableObject {
 
   constructor() {
     super();
-    this.state = "FLOATING";
+    this.state = "FLOAT";
     this.loadImagePaths(
-      this.IMAGES_INTRO,
+      this.IMAGES.INTRO,
       10,
       "../img/2.Enemy/3 Final Enemy/1.Introduce/"
     );
-    this.loadImages(this.IMAGES_INTRO);
+    this.loadImages(this.IMAGES.INTRO);
     this.loadImagePaths(
-      this.IMAGES_FLOAT,
+      this.IMAGES.FLOAT,
       13,
       "../img/2.Enemy/3 Final Enemy/2.floating/"
     );
-    this.loadImages(this.IMAGES_FLOAT);
-    this.loadImagePaths(this.IMAGES_ATTACK, 6, "../img/2.Enemy/3 Final Enemy/Attack/");
-    this.loadImages(this.IMAGES_ATTACK);
-    this.loadImagePaths(this.IMAGES_HURT, 4, "../img/2.Enemy/3 Final Enemy/Hurt/");
-    this.loadImages(this.IMAGES_HURT);
+    this.loadImages(this.IMAGES.FLOAT);
+    this.loadImagePaths(this.IMAGES.ATTACK, 6, "../img/2.Enemy/3 Final Enemy/Attack/");
+    this.loadImages(this.IMAGES.ATTACK);
+    this.loadImagePaths(this.IMAGES.HURT, 4, "../img/2.Enemy/3 Final Enemy/Hurt/");
+    this.loadImages(this.IMAGES.HURT);
     this.loadImagePaths(
-      this.IMAGES_DEAD,
+      this.IMAGES.DEAD,
       6,
       "../img/2.Enemy/3 Final Enemy/Dead/Mesa de trabajo 2_"
     );
-    this.loadImages(this.IMAGES_DEAD);
+    this.loadImages(this.IMAGES.DEAD);
 
-    this.loadImage(this.IMAGES_FLOAT[0]);
+    this.loadImage(this.IMAGES.FLOAT[0]);
     this.animate();
   }
 
   animate() {
     let floatInterval = setInterval(() => {
-      if (this.state !== "FLOATING") {
+      if (this.state !== "FLOAT") {
         clearInterval(floatInterval);
       }
-      this.playAnimation(this.IMAGES_FLOAT);
+      this.playAnimation(this.IMAGES.FLOAT);
     }, 1000 / 4);
     this.animationIntervals.push(floatInterval);
   }
@@ -81,25 +68,11 @@ export class Endboss extends MovableObject {
   update() {
     if (this.isDead() && this.state != "DEAD") {
       this.state = "DEAD";
-      this.playDeathAnimation(this.IMAGES_DEAD, 1000/12);
+      this.playSingleAnimation(this.IMAGES[this.state], this.animationSpeed[this.state]);
     }
   }
 
   playAnimationLoop(state) {}
 
-  playDeathAnimation(IMAGES, speed) {
-    // console.log("playing Death");
-    this.clearAllAnimationIntervals();
-    this.currentImage = 0;
-    let counter = 0;
-    let deathInterval = setInterval(() => {
-      if (counter >= IMAGES.length - 1) {
-        clearInterval(deathInterval);
-      }
-      this.playAnimation(IMAGES);
-      counter++;
-    }, speed);
-  }
-
-  
+   
 }

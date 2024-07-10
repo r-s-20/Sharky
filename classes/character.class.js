@@ -3,34 +3,40 @@ import { MovableObject } from "./movable.object.class.js";
 export class Character extends MovableObject {
   height = 200;
   width = 200;
-  position = {x: 50,y: 50}
+  position = { x: 50, y: 50 };
   speedY = 0;
   speedX = 5;
-  offset = {x: 38, y: 95, height: -137, width: -75};
+  offset = { x: 38, y: 95, height: -137, width: -75 };
   acceleration = 0.1;
-  IMAGES_IDLE = [];
-  IMAGES_SWIM = [];
-  IMAGES_DEAD_POISON = [];
-  IMAGES_HURT_POISON = [];
   otherDirection = false;
   currentAnimationInterval;
   level;
   world;
-  states = ["IDLING", "SWIMMING", "HURT_POISON", "HURT_SHOCK", "ATTACK", "SLEEP", "DEAD"];
+
+  IMAGES = {
+    IDLE: [],
+    SWIM: [],
+    HURT_POISON: [],
+    HURT_SHOCK: [],
+    ATTACK: [],
+    SLEEP: [],
+    DEAD: [],
+  };
+
   state = {
-    IDLING: 1,
-    SWIMMING: 2,
+    IDLE: 1,
+    SWIM: 2,
     HURT_POISON: 3,
     HURT_SHOCK: 4,
     ATTACK: 5,
     SLEEP: 6,
     DEAD: 7,
   };
-  currentState = this.state.IDLING;
+  currentState = this.state.IDLE;
   maxHp = 150;
   maxCoins = 5;
   coins = 0;
-  maxBubbles=10;
+  maxBubbles = 10;
   bubbles = 5;
   swimming = false;
   woosh_sound = new Audio("./audio/Arm Whoosh A.ogg");
@@ -41,21 +47,17 @@ export class Character extends MovableObject {
     super();
     this.world = world;
     this.hp = this.maxHp;
-    this.loadImagePaths(this.IMAGES_IDLE, 18, "img/1.Sharkie/1.IDLE/");
-    this.loadImagePaths(this.IMAGES_SWIM, 6, "img/1.Sharkie/3.Swim/");
-    this.loadImagePaths(
-      this.IMAGES_DEAD_POISON,
-      12,
-      "./img/1.Sharkie/6.dead/1.Poisoned/"
-    );
-    this.loadImagePaths(this.IMAGES_HURT_POISON, 4, "img/1.Sharkie/5.Hurt/1.Poisoned/");
+    this.loadImagePaths(this.IMAGES.IDLE, 18, "img/1.Sharkie/1.IDLE/");
+    this.loadImagePaths(this.IMAGES.SWIM, 6, "img/1.Sharkie/3.Swim/");
+    this.loadImagePaths(this.IMAGES.DEAD, 12, "./img/1.Sharkie/6.dead/1.Poisoned/");
+    this.loadImagePaths(this.IMAGES.HURT_POISON, 4, "img/1.Sharkie/5.Hurt/1.Poisoned/");
 
-    this.loadImages(this.IMAGES_IDLE);
-    this.loadImages(this.IMAGES_SWIM);
-    this.loadImages(this.IMAGES_DEAD_POISON);
-    this.loadImages(this.IMAGES_HURT_POISON);
+    this.loadImages(this.IMAGES.IDLE);
+    this.loadImages(this.IMAGES.SWIM);
+    this.loadImages(this.IMAGES.DEAD);
+    this.loadImages(this.IMAGES.HURT_POISON);
 
-    this.loadImage(this.IMAGES_IDLE[0]);
+    this.loadImage(this.IMAGES.IDLE[0]);
     this.animate();
     this.level = this.world.level;
   }
@@ -78,17 +80,17 @@ export class Character extends MovableObject {
           this.otherDirection = false;
           this.position.x += this.speedX;
           if (this.state != this.state.HURT_POISON) {
-            this.currentState = this.state.SWIMMING;
+            this.currentState = this.state.SWIM;
           }
         } else if (keyboard.LEFT && this.position.x > -50) {
           this.otherDirection = true;
           this.position.x -= this.speedX;
           if (this.state != this.state.HURT_POISON) {
-            this.currentState = this.state.SWIMMING;
+            this.currentState = this.state.SWIM;
           }
         } else {
           if (!this.isHurt()) {
-            this.currentState = this.state.IDLING;
+            this.currentState = this.state.IDLE;
           }
         }
         if (keyboard.UP) {
@@ -107,9 +109,9 @@ export class Character extends MovableObject {
       if (!this.isDead()) {
         if (this.isHurt()) {
           this.hurt();
-        } else if (this.currentState == this.state.SWIMMING) {
+        } else if (this.currentState == this.state.SWIM) {
           this.swim(gameFrame);
-        } else if (this.currentState == this.state.IDLING) {
+        } else if (this.currentState == this.state.IDLE) {
           this.idle(gameFrame);
         }
       }
@@ -118,20 +120,24 @@ export class Character extends MovableObject {
 
   idle(gameFrame) {
     if (gameFrame % 4 == 0) {
-      this.playAnimation(this.IMAGES_IDLE);
+      this.playAnimation(this.IMAGES.IDLE);
     }
   }
 
   swim(gameFrame) {
     // this.splash_sound.play();
-    if (gameFrame % 6 == 0 && this.currentState == this.state.SWIMMING) {
-      this.playAnimation(this.IMAGES_SWIM);
+    if (gameFrame % 6 == 0 && this.currentState == this.state.SWIM) {
+      this.playAnimation(this.IMAGES.SWIM);
     }
   }
 
   applyGravity() {
     setInterval(() => {
-      if (!this.isDead() && this.world.gameState !== "GAMEOVER" && (this.isAboveGround() || this.speedY > 0)) {
+      if (
+        !this.isDead() &&
+        this.world.gameState !== "GAMEOVER" &&
+        (this.isAboveGround() || this.speedY > 0)
+      ) {
         this.position.y -= this.speedY;
         this.speedY -= this.acceleration;
         if (this.position.y <= -100) this.position.y = -100;
@@ -148,10 +154,10 @@ export class Character extends MovableObject {
   }
 
   jump(dir = 1) {
-    this.speedY = 4*dir;
+    this.speedY = 4 * dir;
   }
 
-  hurt(IMAGES = this.IMAGES_HURT_POISON) {
+  hurt(IMAGES = this.IMAGES.HURT_POISON) {
     this.currentImage = 0;
     let counter = 0;
     let hurtInterval = setInterval(() => {
@@ -164,7 +170,7 @@ export class Character extends MovableObject {
         counter++;
       }
     }, 1000 / 30);
-    this.currentState = this.state.IDLING;
+    this.currentState = this.state.IDLE;
   }
 
   playDeathAnimation() {
@@ -172,10 +178,10 @@ export class Character extends MovableObject {
     this.currentImage = 0;
     let counter = 0;
     let deathInterval = setInterval(() => {
-      if (counter >= this.IMAGES_DEAD_POISON.length - 1) {
+      if (counter >= this.IMAGES.DEAD.length - 1) {
         clearInterval(deathInterval);
       }
-      this.playAnimation(this.IMAGES_DEAD_POISON);
+      this.playAnimation(this.IMAGES.DEAD);
       counter++;
       // console.log(counter);
     }, 1000 / 30);

@@ -51,8 +51,11 @@ export class World {
 
   collisionsEnemies() {
     this.enemies.forEach((enemy) => {
-      // console.log(this.character.isColliding(enemy));
-      if (this.character.isColliding(enemy) && !this.character.isDead()) {
+      if (
+        this.character.isColliding(enemy) &&
+        !this.character.isDead() &&
+        !enemy.isDead()
+      ) {
         this.character.hit(2);
         if (this.character.hp <= 0) {
           this.character.loadImage(this.character.IMAGES_DEAD_POISON[0]);
@@ -81,18 +84,15 @@ export class World {
   collisionsBubbles() {
     this.bubbles.forEach((bubble) => {
       this.enemies.forEach((enemy) => {
-        if (bubble.isColliding(enemy) && !bubble.isDead()) {
-          // console.log("bubble-enemy-collision");
+        if (bubble.isColliding(enemy) && !bubble.isDead() && !enemy.isDead()) {
           bubble.hp = 0;
           enemy.hit(5);
-          // console.log(enemy);
+          if (this.enemies[this.enemies.length - 1].hp <= 0) {
+            console.log("you win!");
+            this.gameState = "GAMEOVER";
+          }
         }
       });
-      if (this.enemies[this.enemies.length - 1].hp <= 0) {
-        this.enemies[3].update();
-        console.log("you win!");
-        this.gameState = "GAMEOVER";
-      }
     });
   }
 
@@ -110,8 +110,9 @@ export class World {
   handleEnemies() {
     this.enemies.forEach((enemy, index) => {
       if (enemy.isDead()) {
+        enemy.update();
         // this.enemies.splice(index, 1);
-        console.log("is dead:", enemy);
+        // console.log("is dead:", enemy);
       }
     });
   }
