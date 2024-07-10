@@ -7,24 +7,27 @@ import { ThrowableObject } from "./throwable-object.class.js";
 export class World {
   gameState = {
     START: "START",
+    LOADING: "LOADING",
     RUNNING: "RUNNING",
     PAUSED: "PAUSED",
     GAMEOVER: "GAMEOVER",
   };
   bubbles = [];
+  creatingBubble = false;
   gameOverScreen;
 
   constructor(canvas) {
-    this.gameState = "RUNNING";
-    this.loadLevelContents();
-    this.loadScreens();
-    this.camera_x = 0;
+    this.gameState = "START";
 
-    this.ctx = canvas.getContext("2d");
+    this.loadScreens();
+
     this.character = new Character(this);
     this.statusBarHp = new StatusBar("HP", this.character.maxHp);
     this.statusBarCoins = new StatusBar("COINS", this.character.maxCoins);
     this.statusBarBubbles = new StatusBar("BUBBLES", this.character.maxBubbles);
+    this.camera_x = 0;
+
+    this.ctx = canvas.getContext("2d");
     this.update();
     this.draw();
   }
@@ -36,12 +39,31 @@ export class World {
       if (this.gameState == "GAMEOVER") {
         clearInterval(runInterval);
       }
-      this.checkCollisions();
-      this.handleBubbles(frameCount);
-      this.handleEnemies();
-    }, 1000 / 30);
+      if (this.gameState == "START") {
+        if (keyboard.ENTER) {
+          console.log("changing to load");
+          this.gameState = "LOADING";
+        }
+      }
+      if (this.gameState == "LOADING") {
+        this.loadLevelContents();
+        setTimeout(() => (this.gameState = "RUNNING"), 1500);
+      }
+      if (this.gameState == "RUNNING") {
+        this.updateStatusBars();
+        this.checkCollisions();
+        this.handleBubbles(frameCount);
+        this.handleEnemies();
+        this.checkFinalBossEntry();
+      }
+    }, 1000 / 60);
   }
 
+  updateStatusBars() {
+    this.statusBarHp.update(this.character.hp);
+    this.statusBarCoins.update(this.character.coins);
+    this.statusBarBubbles.update(this.character.bubbles);
+  }
   checkCollisions() {
     // console.log("checking collision");
     this.collisionsEnemies();
@@ -51,11 +73,7 @@ export class World {
 
   collisionsEnemies() {
     this.enemies.forEach((enemy) => {
-      if (
-        this.character.isColliding(enemy) &&
-        !this.character.isDead() &&
-        !enemy.isDead()
-      ) {
+      if (this.character.isColliding(enemy) && !this.character.isDead() && !enemy.isDead()) {
         this.character.hit(2);
         if (this.character.hp <= 0) {
           this.character.playDeathAnimation();
@@ -85,7 +103,7 @@ export class World {
       this.enemies.forEach((enemy) => {
         if (bubble.isColliding(enemy) && !bubble.isDead() && !enemy.isDead()) {
           bubble.hp = 0;
-          enemy.hit(5);
+          enemy.hit(bubble.damage);
           if (this.enemies[this.enemies.length - 1].hp <= 0) {
             console.log("you win!");
             this.gameState = "GAMEOVER";
@@ -96,7 +114,7 @@ export class World {
   }
 
   handleBubbles(frameCount) {
-    if (frameCount % 3 == 0) {
+    if (frameCount % 2 == 0) {
       this.checkThrowing();
     }
     this.bubbles.forEach((bubble, bubbleIndex) => {
@@ -119,13 +137,32 @@ export class World {
   }
 
   checkThrowing() {
-    if (keyboard.SHOOT) {
-      if (this.character.bubbles > 0) {
-        let bubble = new ThrowableObject(this.character);
+    if (keyboard.SHOOT && !this.creatingBubble && !this.character.isHurt()) {
+      this.creatingBubble = true;
+      setTimeout(() => {
+        let bubble;
+        if (this.character.bubbles > 0) {
+          this.character.bubbles--;
+          bubble = new ThrowableObject(this.character, "poison");
+        } else {
+          bubble = new ThrowableObject(this.character);
+        }
         this.bubbles.push(bubble);
-        this.character.bubbles--;
-      }
+      }, 400);
+      setTimeout(() => {
+        this.creatingBubble = false;
+      }, 1000);
       // console.log("observed shoot", this.bubbles);
+    }
+  }
+
+  checkFinalBossEntry() {
+    let finalEnemy = this.enemies[this.enemies.length - 1];
+    if (this.character.position.x > 1000 && !finalEnemy.hasEntered) {
+      console.log("final boss entering area");
+      finalEnemy.currentImage = 0;
+      finalEnemy.introAnimation();
+      finalEnemy.position.y = 0;
     }
   }
 
@@ -136,22 +173,19 @@ export class World {
 
   draw() {
     this.ctx.reset();
-    this.statusBarHp.update(this.character.hp);
-    this.statusBarCoins.update(this.character.coins);
-    this.statusBarBubbles.update(this.character.bubbles);
-
-    // bei der auskommentierten Version wird beim Gameover-Screen nichts
-    // mehr vom Game angezeigt => habe in der aktuellen Version stattdessen Opacity, sieht
-    // schöner aus
-    // if (this.gameState == "RUNNING") {
-    this.drawGameContents();
-    // } else if (this.gameState == "GAMEOVER") {
-    if (this.character.hp <= 0 && this.gameState == "GAMEOVER") {
-      this.renderEndScreen("GAME OVER");
-    } else if (this.gameState == "GAMEOVER" && this.character.hp > 0) {
-      this.renderEndScreen("YOU WIN!");
+    if (this.gameState == "START") {
+      this.renderStartScreen("Press ENTER to start game");
+    } else if (this.gameState == "LOADING") {
+      this.renderStartScreen("loading...");
     }
-    // }
+    if (this.gameState == "RUNNING" || this.gameState == "GAMEOVER") {
+      this.drawGameContents();
+      if (this.character.hp <= 0 && this.gameState == "GAMEOVER") {
+        this.renderEndScreen("GAME OVER");
+      } else if (this.gameState == "GAMEOVER" && this.character.hp > 0) {
+        this.renderEndScreen("YOU WIN!");
+      }
+    }
 
     requestAnimationFrame(() => {
       this.draw();
@@ -166,7 +200,7 @@ export class World {
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.collectables);
     this.ctx.translate(-this.camera_x, 0);
-    // this.addStatusInfos();
+    this.addStatusInfos();
     this.addToMap(this.statusBarHp);
     this.addToMap(this.statusBarCoins);
     this.addToMap(this.statusBarBubbles);
@@ -220,12 +254,25 @@ export class World {
     this.ctx.font = "bold 20px Arial";
     this.ctx.strokeStyle = "grey";
     this.ctx.fillStyle = "#CC33AA";
-    this.ctx.strokeText("hp: " + this.character.hp, 20, 40);
-    this.ctx.fillText("hp: " + this.character.hp, 20, 40);
-    this.ctx.strokeText("coins: " + this.character.coins, 20, 70);
-    this.ctx.fillText("coins: " + this.character.coins, 20, 70);
-    this.ctx.strokeText("bubbles: " + this.character.bubbles, 20, 100);
-    this.ctx.fillText("bubbles: " + this.character.bubbles, 20, 100);
+    // this.ctx.strokeText("hp: " + this.character.hp, 200, 40);
+    // this.ctx.fillText("hp: " + this.character.hp, 200, 40);
+    this.ctx.strokeText("coins: " + this.character.coins, 250, 45);
+    this.ctx.fillText("coins: " + this.character.coins, 250, 45);
+    this.ctx.strokeText("poison: " + this.character.bubbles, 400, 45);
+    this.ctx.fillText("poison: " + this.character.bubbles, 400, 45);
+  }
+
+  renderStartScreen(message) {
+    this.ctx.reset();
+    this.ctx.fillStyle = "lightblue";
+    this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+    this.ctx.strokeStyle = "white";
+    this.ctx.strokeWidth = 5;
+    this.ctx.font = "50px Georgia";
+    this.ctx.fillStyle = "violet";
+    this.ctx.strokeText(message, 80, canvas.height / 2);
+    this.ctx.fillText(message, 80, canvas.height / 2);
+    // this.addToMap(this.gameOverScreen);
   }
 
   renderEndScreen(message) {
@@ -246,12 +293,13 @@ export class World {
     this.light = this.level.light;
     this.backgroundObjects = this.level.backgroundObjects;
     this.collectables = this.level.collectables;
+    this.enemies[this.enemies.length - 1].character = this.character;
   }
 
   loadScreens() {
     this.gameOverScreen = new DrawableObject();
     this.gameOverScreen.loadImage("../img/6.Botones/Tittles/Game Over/Recurso 9.png");
-    console.log(this.gameOverScreen);
+    // console.log(this.gameOverScreen);
   }
 
   drawCollisionRects() {

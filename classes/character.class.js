@@ -11,6 +11,7 @@ export class Character extends MovableObject {
   otherDirection = false;
   level;
   world;
+  attackRunning = false;
 
   IMAGES = {
     IDLE: [],
@@ -18,6 +19,7 @@ export class Character extends MovableObject {
     HURT_POISON: [],
     // HURT_SHOCK: [],
     // ATTACK: [],
+    ATTACK_BUBBLE: [],
     // SLEEP: [],
     DEAD: [],
   };
@@ -28,21 +30,23 @@ export class Character extends MovableObject {
     HURT_POISON: "HURT_POISON",
     // HURT_SHOCK: "HURT_SHOCK",
     // ATTACK: "ATTACK",
+    ATTACK_BUBBLE: "ATTACK_BUBBLE",
     // SLEEP: "SLEEP",
     DEAD: "DEAD",
   };
 
   currentState = this.state.IDLE;
   maxHp = 150;
-  hp = 20;
+  hp = 150;
   maxCoins = 5;
   coins = 0;
-  maxBubbles = 10;
-  bubbles = 5;
+  maxBubbles = 7;
+  bubbles = 1;
   swimming = false;
   woosh_sound = new Audio("../audio/Arm Whoosh A.ogg");
   splash_sound = new Audio("../audio/water_splashing_short.ogg");
   hit_sound = new Audio("../audio/hit11.mp3.flac");
+  level;
 
   constructor(world) {
     super();
@@ -50,17 +54,14 @@ export class Character extends MovableObject {
     this.loadImagePaths(this.IMAGES.IDLE, 18, "../img/1.Sharkie/1.IDLE/");
     this.loadImagePaths(this.IMAGES.SWIM, 6, "../img/1.Sharkie/3.Swim/");
     this.loadImagePaths(this.IMAGES.DEAD, 12, "../img/1.Sharkie/6.dead/1.Poisoned/");
-    this.loadImagePaths(
-      this.IMAGES.HURT_POISON,
-      4,
-      "../img/1.Sharkie/5.Hurt/1.Poisoned/"
-    );
+    this.loadImagePaths(this.IMAGES.HURT_POISON, 4, "../img/1.Sharkie/5.Hurt/1.Poisoned/");
+    this.loadImagePaths(this.IMAGES.ATTACK_BUBBLE, 7, "../img/1.Sharkie/4.Attack/Bubble trap/Op2 (Without Bubbles)/");
 
     this.loadImagesToCache();
 
     this.loadImage(this.IMAGES.IDLE[0]);
     this.animate();
-    this.level = this.world.level;
+    // this.level = this.world.level;
   }
 
   animate() {
@@ -71,34 +72,8 @@ export class Character extends MovableObject {
     }
 
     setInterval(() => {
-      if (!this.isDead() && !this.world.gameOver) {
-        if (this.isHurt()) {
-          // console.log("has a recent hit");
-          this.currentState = this.state.HURT_POISON;
-          // this.hit_sound.play();
-        }
-        if (keyboard.RIGHT && this.position.x < this.level.level_end_x) {
-          this.otherDirection = false;
-          this.position.x += this.speedX;
-          if (this.state != this.state.HURT_POISON) {
-            this.currentState = this.state.SWIM;
-          }
-        } else if (keyboard.LEFT && this.position.x > -50) {
-          this.otherDirection = true;
-          this.position.x -= this.speedX;
-          if (this.state != this.state.HURT_POISON) {
-            this.currentState = this.state.SWIM;
-          }
-        } else {
-          if (!this.isHurt()) {
-            this.currentState = this.state.IDLE;
-          }
-        }
-        if (keyboard.UP) {
-          this.jump();
-        } else if (keyboard.DOWN) {
-          this.jump(-1);
-        }
+      if (this.world.gameState !== "GAMEOVER") {
+        this.evaluateKeyboardInputs();
       }
     }, 1000 / 60);
 
@@ -108,15 +83,66 @@ export class Character extends MovableObject {
       this.splash_sound.loop = true;
       gameFrame++;
       if (!this.isDead()) {
-        if (this.isHurt()) {
-          this.hurt();
-        } else if (this.currentState == this.state.SWIM) {
-          this.swim(gameFrame);
-        } else if (this.currentState == this.state.IDLE) {
-          this.idle(gameFrame);
-        }
+        this.applyAnimations(gameFrame);
       }
     }, 1000 / 60);
+  }
+
+  evaluateKeyboardInputs() {
+    if (this.isHurt()) {
+      this.currentState = this.state.HURT_POISON;
+      // this.hit_sound.play();
+    } else if (keyboard.SHOOT && !this.attackRunning) {
+      this.currentState = this.state.ATTACK_BUBBLE;
+    }
+    if (keyboard.RIGHT && this.position.x < this.world.level.level_end_x) {
+      this.movementRight();
+    } else if (keyboard.LEFT && this.position.x > -50) {
+      this.movementLeft();
+    } else {
+      if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
+        this.currentState = this.state.IDLE;
+      }
+    }
+    if (keyboard.UP) {
+      this.jump();
+      if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
+        this.currentState = this.state.SWIM;
+      }
+    } else if (keyboard.DOWN) {
+      this.jump(-1);
+      if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
+        this.currentState = this.state.SWIM;
+      }
+    }
+  }
+
+  applyAnimations(gameFrame) {
+    if (this.isHurt()) {
+      this.hurt();
+    } else if (this.currentState == this.state.ATTACK_BUBBLE) {
+      this.bubbleAttack();
+    } else if (this.currentState == this.state.SWIM) {
+      this.swim(gameFrame);
+    } else if (this.currentState == this.state.IDLE) {
+      this.idle(gameFrame);
+    }
+  }
+
+  movementRight() {
+    this.otherDirection = false;
+    this.position.x += this.speedX;
+    if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
+      this.currentState = this.state.SWIM;
+    }
+  }
+
+  movementLeft() {
+    this.otherDirection = true;
+    this.position.x -= this.speedX;
+    if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
+      this.currentState = this.state.SWIM;
+    }
   }
 
   idle(gameFrame) {
@@ -132,13 +158,20 @@ export class Character extends MovableObject {
     }
   }
 
+  bubbleAttack() {
+    if (!this.attackRunning && !this.isHurt()) {
+      this.attackRunning = true;
+      this.playSingleAnimation(this.IMAGES.ATTACK_BUBBLE, 1000 / 15);
+      setTimeout(() => {
+        this.currentState = this.state.IDLE;
+        this.attackRunning = false;
+      }, 1000);
+    }
+  }
+
   applyGravity() {
     setInterval(() => {
-      if (
-        !this.isDead() &&
-        this.world.gameState !== "GAMEOVER" &&
-        (this.isAboveGround() || this.speedY > 0)
-      ) {
+      if (this.world.gameState !== "GAMEOVER" && (this.isAboveGround() || this.speedY > 0)) {
         this.position.y -= this.speedY;
         this.speedY -= this.acceleration;
         if (this.position.y <= -100) this.position.y = -100;

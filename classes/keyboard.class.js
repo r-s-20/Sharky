@@ -40,6 +40,9 @@ export class Keyboard {
         case "e":
           this.SHOOT = true;
           break;
+        case "Enter":
+          this.ENTER = true;
+          break;
       }
       // console.log(e);
       // console.log(this);
@@ -76,6 +79,9 @@ export class Keyboard {
           break;
         case "e":
           this.SHOOT = false;
+          break;
+        case "Enter":
+          this.ENTER = false;
           break;
       }
       // console.log("release", this);
