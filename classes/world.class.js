@@ -127,10 +127,17 @@ export class World {
           }
           if (enemy.isDead()) {
             this.score += enemy.score;
+            enemy.deathPosition = enemy.position;
           }
         }
       });
     });
+  }
+
+  renderScoreInfo(enemy) {
+    this.ctx.font = "25px LuckiestGuy";
+    this.ctx.fillStyle = "blue";
+    this.ctx.fillText(`+ ${enemy.score}`, (this.character.position.x + this.character.offset.x + this.character.width/2), (this.character.position.y + this.character.offset.y));
   }
 
   handleBubbles(frameCount) {
@@ -243,6 +250,12 @@ export class World {
     this.addObjectsToMap(this.backgroundObjects);
     this.addToMap(this.light);
     this.addObjectsToMap(this.enemies);
+    this.enemies.forEach((enemy) => {
+      if (enemy.recentDead()) {
+        console.log("enemy died recently");
+        this.renderScoreInfo(enemy);
+      }
+    });
     this.addObjectsToMap(this.collectables);
     this.ctx.translate(-this.camera_x, 0);
     this.addStatusInfos();

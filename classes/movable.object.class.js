@@ -13,6 +13,8 @@ export class MovableObject extends DrawableObject {
   stopAnimation = false;
   animationInterval;
   lastHit = 0;
+  hasDied = 0;
+  deathPosition = { x: 0, y: 0 };
 
   IMAGES = {
     DEAD: [],
@@ -79,14 +81,10 @@ export class MovableObject extends DrawableObject {
 
   isColliding(obj) {
     return (
-      this.position.x + this.offset.x + this.width + this.offset.width >=
-        obj.position.x + obj.offset.x &&
-      this.position.x + this.offset.x <=
-        obj.position.x + obj.offset.x + obj.width + obj.offset.width &&
-      this.position.y + this.offset.y + this.height + this.offset.height >=
-        obj.position.y + obj.offset.y &&
-      this.position.y + this.offset.y <=
-        obj.position.y + obj.offset.y + obj.height + obj.offset.height
+      this.position.x + this.offset.x + this.width + this.offset.width >= obj.position.x + obj.offset.x &&
+      this.position.x + this.offset.x <= obj.position.x + obj.offset.x + obj.width + obj.offset.width &&
+      this.position.y + this.offset.y + this.height + this.offset.height >= obj.position.y + obj.offset.y &&
+      this.position.y + this.offset.y <= obj.position.y + obj.offset.y + obj.height + obj.offset.height
     );
     // obj.onCollisionCourse;
   }
@@ -95,6 +93,7 @@ export class MovableObject extends DrawableObject {
     this.hp -= damage;
     if (this.hp < 0) {
       this.hp = 0;
+      this.hasDied = new Date().getTime();
     } else {
       this.lastHit = new Date().getTime();
     }
@@ -107,5 +106,10 @@ export class MovableObject extends DrawableObject {
 
   isDead() {
     return this.hp == 0;
+  }
+
+  recentDead() {
+    let timePassed = new Date().getTime() - this.hasDied;
+    return timePassed < 1500;
   }
 }
