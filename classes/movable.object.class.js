@@ -27,7 +27,7 @@ export class MovableObject extends DrawableObject {
     Object.keys(this.state).forEach((state) => {
       this.loadImages(this.IMAGES[state]);
     });
-    console.log("loading image cache for", Object.keys(this.state), "finished", new Date().getTime());
+    // console.log("loading image cache for", Object.keys(this.state), "finished", new Date().getTime());
   }
 
   moveRight(step = 10) {

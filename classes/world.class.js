@@ -50,13 +50,17 @@ export class World {
       }
       if (this.gameState == "START") {
         setTimeout(() => (active = true), 1000);
+        let startBtn = document.getElementById("start-btn");
+        startBtn.classList.remove("d-none");
         if (keyboard.ENTER && active) {
-          console.log("changing to load");
+          // console.log("changing to load");
           this.gameState = "LOADING";
           this.score = 0;
         }
       }
       if (this.gameState == "LOADING") {
+        let startBtn = document.getElementById("start-btn");
+        startBtn.classList.add("d-none");
         this.loadLevelContents();
         setTimeout(() => {
           // console.log("changing to running", new Date().getTime());
@@ -201,7 +205,7 @@ export class World {
   draw() {
     this.ctx.reset();
     if (this.gameState == "START") {
-      this.renderStartScreen("Press ENTER to start game");
+      this.renderStartScreen("");
     } else if (this.gameState == "LOADING") {
       this.renderStartScreen(`${this.currentLevel} loading...`);
     }
@@ -337,8 +341,8 @@ export class World {
     this.ctx.font = "80px LuckiestGuy";
     this.ctx.fillStyle = "blue";
     this.ctx.textAlign = "center";
-    this.ctx.strokeText("Sharky", canvas.width / 2, (canvas.height / 5) * 2);
-    this.ctx.fillText("Sharky", canvas.width / 2, (canvas.height / 5) * 2);
+    this.ctx.strokeText("Sharky", canvas.width / 2, (canvas.height / 7*3));
+    this.ctx.fillText("Sharky", canvas.width / 2, (canvas.height / 7*3));
 
     this.ctx.font = "40px LuckiestGuy";
     this.ctx.lineWidth = 3;

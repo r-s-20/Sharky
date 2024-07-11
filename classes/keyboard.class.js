@@ -5,8 +5,14 @@ export class Keyboard {
   DOWN = false;
   SPACE = false;
   SHOOT = false;
+  ENTER = false;
 
   constructor() {
+    document.getElementById("start-btn").addEventListener("click", (e) => {
+      this.ENTER = true;
+      setTimeout(() => (this.ENTER = false), 1000);
+    });
+
     window.addEventListener("keydown", (e) => {
       // console.log(e);
       switch (e.key) {
@@ -43,7 +49,6 @@ export class Keyboard {
         case "Enter":
           this.ENTER = true;
           break;
-          
       }
       // console.log(e);
       // console.log(this);

@@ -11,7 +11,9 @@
   </head>
   <body>
     <h1>Sharky</h1>
-    <!-- <img src= "img/3. Background/Layers/4.Fondo 2/D1.png"> -->
-    <canvas id="canvas" width="720" height="480" onclick="prevent.Default()"> </canvas>
+    <div class="canvas-container flex-col">
+      <canvas id="canvas" width="720" height="480" onclick="event.preventDefault()"> </canvas>
+      <button id="start-btn" class="button">START GAME</button>
+    </div>
   </body>
 </html>

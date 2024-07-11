@@ -13,10 +13,12 @@ window.addEventListener("load", () => {
 });
 
 window.addEventListener("keydown", (e) => {
-  let elem = canvas;
+  let container = document.querySelector(".canvas-container");
+  let elem = document.getElementById("canvas");
   if (e.key == "f") {
     if (elem.requestFullscreen) {
-      elem.requestFullscreen();
+      // elem.requestFullscreen();
+      container.requestFullscreen();
     } else if (elem.webkitRequestFullscreen) {
       /* Safari */
       elem.webkitRequestFullscreen();
