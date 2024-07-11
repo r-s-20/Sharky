@@ -63,7 +63,16 @@ export class Character extends MovableObject {
     this.animate();
     // this.level = this.world.level;
   }
-
+reset() {
+  this.hp = this.maxHp;
+  this.coins = 0;
+  this.bubbles = 1;
+  this.currentState= this.state.IDLE;
+  this.position = { x: 50, y: 50 };
+  this.speedY = 0;
+  this.speedX = 5;
+  this.otherDirection = false;
+}
   animate() {
     this.applyGravity();
     if (this.isDead()) {

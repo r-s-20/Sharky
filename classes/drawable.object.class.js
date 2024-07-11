@@ -35,17 +35,18 @@ export class DrawableObject {
     this.currentImage++;
   }
 
-  playSingleAnimation(IMAGES, speed) {
+  playSingleAnimation(IMAGES, speed, state = "none") {
     this.clearAllAnimationIntervals();
     this.currentImage = 0;
     let counter = 0;
     let animationInterval = setInterval(() => {
-      if (counter >= IMAGES.length - 1) {
+      if (counter >= IMAGES.length - 1 || (state != "none" && this.state != state)) {
         clearInterval(animationInterval);
       }
       this.playAnimation(IMAGES);
       counter++;
     }, speed);
+    this.animationIntervals.push(animationInterval);
   }
 
   clearAllAnimationIntervals() {

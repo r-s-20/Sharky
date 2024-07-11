@@ -23,10 +23,10 @@ export class MovableObject extends DrawableObject {
   };
 
   loadImagesToCache() {
-    console.log("loading image cache for", Object.keys(this.state));
     Object.keys(this.state).forEach((state) => {
       this.loadImages(this.IMAGES[state]);
     });
+    console.log("loading image cache for", Object.keys(this.state), "finished", new Date().getTime());
   }
 
   moveRight(step = 10) {
@@ -102,7 +102,7 @@ export class MovableObject extends DrawableObject {
 
   isHurt() {
     let timePassed = new Date().getTime() - this.lastHit;
-    return timePassed / 1000 < 1;
+    return timePassed / 500 < 1;
   }
 
   isDead() {

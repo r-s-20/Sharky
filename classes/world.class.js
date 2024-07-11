@@ -1,6 +1,8 @@
 import { createLevel1 } from "../levels/level1.js";
+import { createLevel2 } from "../levels/level2.js";
 import { Character } from "./character.class.js";
 import { DrawableObject } from "./drawable.object.class.js";
+import { Endboss } from "./endboss.class.js";
 import { StatusBar } from "./statusbar.class.js";
 import { ThrowableObject } from "./throwable-object.class.js";
 
@@ -16,6 +18,9 @@ export class World {
   creatingBubble = false;
   gameOverScreen;
   level;
+  levels = ["level1", "level2"];
+  currentLevel = this.levels[0];
+  score = 0;
 
   constructor(canvas) {
     this.gameState = "START";
@@ -34,6 +39,7 @@ export class World {
   }
 
   update() {
+    let active = false;
     let frameCount = 0;
     let runInterval = setInterval(() => {
       frameCount++;
@@ -41,14 +47,20 @@ export class World {
         clearInterval(runInterval);
       }
       if (this.gameState == "START") {
-        if (keyboard.ENTER) {
+        setTimeout(() => (active = true), 1000);
+        if (keyboard.ENTER && active) {
           console.log("changing to load");
           this.gameState = "LOADING";
+          this.score = 0;
         }
       }
       if (this.gameState == "LOADING") {
         this.loadLevelContents();
-        setTimeout(() => (this.gameState = "RUNNING"), 1500);
+        setTimeout(() => {
+          // console.log("changing to running", new Date().getTime());
+          this.gameState = "RUNNING";
+          if (this.gameState != "RUNNING") this.character.position.y = 50;
+        }, 900);
       }
       if (this.gameState == "RUNNING") {
         this.updateStatusBars();
@@ -65,6 +77,7 @@ export class World {
     this.statusBarCoins.update(this.character.coins);
     this.statusBarBubbles.update(this.character.bubbles);
   }
+
   checkCollisions() {
     // console.log("checking collision");
     this.collisionsEnemies();
@@ -91,8 +104,10 @@ export class World {
     this.collectables.forEach((item, index) => {
       if (this.character.isColliding(item)) {
         this.collectables.splice(index, 1);
-        if (item.type == "COIN") this.character.coins++;
-        else if (item.type == "POISON") {
+        if (item.type == "COIN") {
+          this.character.coins++;
+          this.score++;
+        } else if (item.type == "POISON") {
           this.character.bubbles++;
         }
       }
@@ -100,14 +115,18 @@ export class World {
   }
 
   collisionsBubbles() {
+    let endboss = this.enemies[this.enemies.length - 1];
     this.bubbles.forEach((bubble) => {
       this.enemies.forEach((enemy) => {
         if (bubble.isColliding(enemy) && !bubble.isDead() && !enemy.isDead()) {
           bubble.hp = 0;
           enemy.hit(bubble.damage);
-          if (this.enemies[this.enemies.length - 1].hp <= 0) {
+          if (endboss.hp <= 0) {
             console.log("you win!");
             this.gameState = "GAMEOVER";
+          }
+          if (enemy.isDead()) {
+            this.score += enemy.score;
           }
         }
       });
@@ -176,20 +195,46 @@ export class World {
     if (this.gameState == "START") {
       this.renderStartScreen("Press ENTER to start game");
     } else if (this.gameState == "LOADING") {
-      this.renderStartScreen("Level 1 loading...");
+      this.renderStartScreen(`${this.currentLevel} loading...`);
     }
     if (this.gameState == "RUNNING" || this.gameState == "GAMEOVER") {
       this.drawGameContents();
-      if (this.character.hp <= 0 && this.gameState == "GAMEOVER") {
-        this.renderEndScreen("GAME OVER");
-      } else if (this.gameState == "GAMEOVER" && this.character.hp > 0) {
-        this.renderEndScreen("YOU WIN!");
+      // console.log("this is still running");
+      if (this.gameState == "GAMEOVER") {
+        if (this.character.isDead()) {
+          this.renderEndScreen("GAME OVER");
+        } else {
+          if (!this.getNextLevel()) {
+            this.renderEndScreen("All complete! YOU WIN!");
+          } else {
+            this.renderEndScreen(`${this.currentLevel} complete!`);
+          }
+        }
+        if (keyboard.ENTER) {
+          if (!this.getNextLevel() || this.character.isDead()) {
+            this.currentLevel = this.levels[0];
+            this.gameState = "START";
+          } else {
+            this.currentLevel = this.getNextLevel();
+            this.gameState = this.gameState = "LOADING";
+          }
+          this.character.reset();
+          this.update();
+        }
       }
     }
 
     requestAnimationFrame(() => {
       this.draw();
     });
+  }
+
+  getNextLevel() {
+    let index = this.levels.indexOf(this.currentLevel);
+    if (index < this.levels.length - 1) {
+      return this.levels[index + 1];
+    }
+    return false;
   }
 
   drawGameContents() {
@@ -201,9 +246,7 @@ export class World {
     this.addObjectsToMap(this.collectables);
     this.ctx.translate(-this.camera_x, 0);
     this.addStatusInfos();
-    this.addToMap(this.statusBarHp);
-    this.addToMap(this.statusBarCoins);
-    this.addToMap(this.statusBarBubbles);
+
     this.ctx.translate(this.camera_x, 0);
 
     this.addToMap(this.character);
@@ -251,15 +294,21 @@ export class World {
   }
 
   addStatusInfos() {
-    this.ctx.font = "bold 20px Arial";
+    this.addToMap(this.statusBarHp);
+    // this.addToMap(this.statusBarCoins);
+    // this.addToMap(this.statusBarBubbles);
+
+    this.ctx.font = "bold 20px LuckiestGuy";
     this.ctx.strokeStyle = "grey";
     this.ctx.fillStyle = "#CC33AA";
     // this.ctx.strokeText("hp: " + this.character.hp, 200, 40);
     // this.ctx.fillText("hp: " + this.character.hp, 200, 40);
-    this.ctx.strokeText("coins: " + this.character.coins, 250, 45);
-    this.ctx.fillText("coins: " + this.character.coins, 250, 45);
-    this.ctx.strokeText("poison: " + this.character.bubbles, 400, 45);
-    this.ctx.fillText("poison: " + this.character.bubbles, 400, 45);
+    this.ctx.strokeText("poison: " + this.character.bubbles, (canvas.width / 6) * 3, 45);
+    this.ctx.fillText("poison: " + this.character.bubbles, (canvas.width / 6) * 3, 45);
+    this.ctx.strokeText("coins: " + this.character.coins, (canvas.width / 6) * 4, 45);
+    this.ctx.fillText("coins: " + this.character.coins, (canvas.width / 6) * 4, 45);
+    this.ctx.strokeText("score: " + this.score, (canvas.width / 6) * 5, 45);
+    this.ctx.fillText("score: " + this.score, (canvas.width / 6) * 5, 45);
   }
 
   renderStartScreen(message) {
@@ -267,28 +316,59 @@ export class World {
     this.ctx.fillStyle = "lightblue";
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
     this.ctx.strokeStyle = "white";
-    this.ctx.strokeWidth = 5;
-    this.ctx.font = "50px Georgia";
+    this.ctx.lineWidth = 5;
+    this.ctx.font = "80px LuckiestGuy";
+    this.ctx.fillStyle = "blue";
+    this.ctx.textAlign = "center";
+    this.ctx.strokeText("Sharky", canvas.width / 2, (canvas.height / 5) * 2);
+    this.ctx.fillText("Sharky", canvas.width / 2, (canvas.height / 5) * 2);
+    this.ctx.font = "40px LuckiestGuy";
+    this.ctx.lineWidth = 3;
     this.ctx.fillStyle = "violet";
-    this.ctx.strokeText(message, 80, canvas.height / 2);
-    this.ctx.fillText(message, 80, canvas.height / 2);
+    this.ctx.textAlign = "center";
+    this.ctx.strokeText(message, canvas.width / 2, (canvas.height / 5) * 4);
+    this.ctx.fillText(message, canvas.width / 2, (canvas.height / 5) * 4);
     // this.addToMap(this.gameOverScreen);
   }
 
   renderEndScreen(message) {
     this.ctx.fillStyle = "rgba(0,0,0,0.3)";
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-    this.ctx.strokeStyle = "white";
+    let gradient = this.ctx.createLinearGradient(0, 0, canvas.width, 0);
+    gradient.addColorStop("0", "lightblue");
+    gradient.addColorStop("0.5", "magenta");
+    gradient.addColorStop("1.0", "orange");
+    this.ctx.strokeStyle = this.character.isDead() ? "grey" : "yellow";
     this.ctx.strokeWidth = 5;
-    this.ctx.font = "50px Georgia";
-    this.ctx.fillStyle = "yellow";
-    this.ctx.strokeText(message, 210, canvas.height / 2);
-    this.ctx.fillText(message, 210, canvas.height / 2);
-    // this.addToMap(this.gameOverScreen);
+    this.ctx.font = "60px LuckiestGuy";
+    this.ctx.fillStyle = this.character.isDead() ? "yellow" : gradient;
+    this.ctx.textAlign = "center";
+    this.ctx.lineWidth = 8;
+    this.ctx.strokeText(message, canvas.width / 2, canvas.height / 2);
+    this.ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+
+    this.renderLineRestart();
+    if (this.character.isDead() || !this.getNextLevel()) this.renderLineScore();
+  }
+
+  renderLineRestart() {
+    this.ctx.lineWidth = 4;
+    this.ctx.strokeStyle = "white";
+    this.ctx.font = "30px LuckiestGuy";
+    this.ctx.fillStyle = "magenta";
+    let text = this.character.isDead() ? "Press ENTER to restart" : "Press ENTER to continue";
+    this.ctx.strokeText(text, canvas.width / 2, (canvas.height / 5) * 4);
+    this.ctx.fillText(text, canvas.width / 2, (canvas.height / 5) * 4);
+  }
+  renderLineScore() {
+    this.ctx.strokeText(`Your score is: ${this.score}`, canvas.width / 2, (canvas.height / 5) * 3.3);
+    this.ctx.fillText(`Your score is: ${this.score}`, canvas.width / 2, (canvas.height / 5) * 3.3);
   }
 
   loadLevelContents() {
-    this.level = createLevel1();
+    if (this.currentLevel == "level1") {
+      this.level = createLevel1();
+    } else this.level = createLevel2();
     this.enemies = this.level.enemies;
     this.light = this.level.light;
     this.backgroundObjects = this.level.backgroundObjects;

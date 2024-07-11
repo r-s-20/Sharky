@@ -1,5 +1,5 @@
 import { World } from "../classes/world.class.js";
-import {Keyboard} from "../classes/keyboard.class.js";
+import { Keyboard } from "../classes/keyboard.class.js";
 
 export let keyboard = new Keyboard();
 globalThis.keyboard = keyboard;
@@ -12,5 +12,14 @@ window.addEventListener("load", () => {
   globalThis.world = new World(canvas);
 });
 
-
-
+window.addEventListener("keydown", (e) => {
+  let elem = canvas;
+  if (e.key == "f") {
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.webkitRequestFullscreen) {
+      /* Safari */
+      elem.webkitRequestFullscreen();
+    }
+  }
+});

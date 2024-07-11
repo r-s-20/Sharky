@@ -4,6 +4,7 @@ export class Enemy extends MovableObject {
   width = 50;
   height = 50;
   hp = 3;
+  score = 5;
   position = { x: 0, y: 0 };
   offset = { x: 0, y: 0, height: -10, width: 0 };
   IMAGES = {

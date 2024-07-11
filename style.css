@@ -1,3 +1,8 @@
+@font-face {
+    font-family: LuckiestGuy;
+    src: url(./font/LuckiestGuy-Regular.ttf);
+}
+
 body {
     margin: 0;
     display: flex;

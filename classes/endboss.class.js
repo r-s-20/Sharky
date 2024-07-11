@@ -3,12 +3,13 @@ import { MovableObject } from "./movable.object.class.js";
 export class Endboss extends MovableObject {
   width = 350;
   height = 350;
-  hp = 30;
+  hp = 10;
+  score = 50;
   position = { x: 1400, y: -300 };
   offset = { x: 12, y: 150, height: -200, width: -30 };
   hasEntered = false;
   character;
-  speedX = 10;
+  speedX = 5;
 
   IMAGES = { INTRO: [], FLOAT: [], ATTACK: [], HURT: [], DEAD: [] };
 
@@ -49,18 +50,18 @@ export class Endboss extends MovableObject {
       let gameFrame = 0;
       let floatInterval = setInterval(() => {
         this.update();
-        if (this.isHurt()) {
+        if (this.isHurt() && !this.isDead()) {
           this.state = "HURT";
           this.playHurtAnimation();
         }
         if (this.state !== "FLOAT") {
           clearInterval(floatInterval);
         }
-        if (gameFrame % 3 == 0) {
+        if (gameFrame % 10 == 0) {
           this.playAnimation(this.IMAGES.FLOAT);
         }
         gameFrame++;
-        if (!this.character.isDead()) {
+        if (!this.character.isDead() && !this.isDead()) {
           if (this.getPlayerDistance >= 200) {
             this.otherDirection = false;
           } else if (this.getPlayerDistance() < 300 && this.getPlayerDistance() > 0) {
@@ -76,7 +77,7 @@ export class Endboss extends MovableObject {
             }
           }
         }
-      }, 1000 / 12);
+      }, 1000 / 60);
       this.animationIntervals.push(floatInterval);
     }
   }
@@ -84,6 +85,7 @@ export class Endboss extends MovableObject {
   update() {
     if (this.isDead() && this.state != "DEAD") {
       this.state = "DEAD";
+      this.clearAllAnimationIntervals();
       this.playSingleAnimation(this.IMAGES[this.state], this.animationSpeed[this.state]);
     }
   }
@@ -95,7 +97,7 @@ export class Endboss extends MovableObject {
     setTimeout(() => {
       this.state = "FLOAT";
       this.animate();
-    }, 400);
+    }, 700);
   }
 
   getPlayerDistance() {
@@ -105,7 +107,7 @@ export class Endboss extends MovableObject {
 
   playAttackAnimation() {
     this.clearAllAnimationIntervals();
-    this.playSingleAnimation(this.IMAGES.ATTACK, 1000 / 10);
+    this.playSingleAnimation(this.IMAGES.ATTACK, 1000 / 10, "ATTACK");
     let counter = 0;
     let movementInterval = setInterval(() => {
       if (counter >= 8) {
@@ -117,14 +119,17 @@ export class Endboss extends MovableObject {
       else this.moveLeft(this.speedX);
       counter++;
     }, 100);
+    this.animationIntervals.push(movementInterval);
   }
 
   playHurtAnimation() {
-    this.clearAllAnimationIntervals();
-    this.playSingleAnimation(this.IMAGES.HURT, 1000 / 15);
-    setTimeout(() => {
-      this.state = "FLOAT";
-      this.animate();
-    }, 400);
+    if (!this.isDead()) {
+      this.clearAllAnimationIntervals();
+      this.playSingleAnimation(this.IMAGES.HURT, 1000 / 15, "HURT");
+      setTimeout(() => {
+        this.state = "FLOAT";
+        this.animate();
+      }, 400);
+    }
   }
 }

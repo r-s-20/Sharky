@@ -43,6 +43,7 @@ export class Keyboard {
         case "Enter":
           this.ENTER = true;
           break;
+          
       }
       // console.log(e);
       // console.log(this);
