@@ -1,5 +1,7 @@
 export class DrawableObject {
   position = { x: 10, y: 10 };
+  width = 100;
+  height = 100;
   img;
   imageCache = {};
   currentImage = 0;

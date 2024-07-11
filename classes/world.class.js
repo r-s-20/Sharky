@@ -2,6 +2,7 @@ import { createLevel1 } from "../levels/level1.js";
 import { createLevel2 } from "../levels/level2.js";
 import { Character } from "./character.class.js";
 import { DrawableObject } from "./drawable.object.class.js";
+import { BackgroundObject } from "./background.object.class.js";
 import { Endboss } from "./endboss.class.js";
 import { StatusBar } from "./statusbar.class.js";
 import { ThrowableObject } from "./throwable-object.class.js";
@@ -21,6 +22,7 @@ export class World {
   levels = ["level1", "level2"];
   currentLevel = this.levels[0];
   score = 0;
+  startScreenBackground = new BackgroundObject("./img/TitleBackground/Sharky.png", 0);
 
   constructor(canvas) {
     this.gameState = "START";
@@ -122,12 +124,11 @@ export class World {
           bubble.hp = 0;
           enemy.hit(bubble.damage);
           if (endboss.hp <= 0) {
-            console.log("you win!");
+            // console.log("you win!");
             this.gameState = "GAMEOVER";
           }
-          if (enemy.isDead()) {
+          if (enemy.hp <= 0) {
             this.score += enemy.score;
-            enemy.deathPosition = enemy.position;
           }
         }
       });
@@ -135,9 +136,9 @@ export class World {
   }
 
   renderScoreInfo(enemy) {
-    this.ctx.font = "25px LuckiestGuy";
+    this.ctx.font = "30px LuckiestGuy";
     this.ctx.fillStyle = "blue";
-    this.ctx.fillText(`+ ${enemy.score}`, (this.character.position.x + this.character.offset.x + this.character.width/2), (this.character.position.y + this.character.offset.y));
+    this.ctx.fillText(`+ ${enemy.score}`, enemy.position.x + 15, enemy.position.y + 10);
   }
 
   handleBubbles(frameCount) {
@@ -212,7 +213,7 @@ export class World {
           this.renderEndScreen("GAME OVER");
         } else {
           if (!this.getNextLevel()) {
-            this.renderEndScreen("All complete! YOU WIN!");
+            this.renderEndScreen("Congrats! YOU WIN!");
           } else {
             this.renderEndScreen(`${this.currentLevel} complete!`);
           }
@@ -252,7 +253,7 @@ export class World {
     this.addObjectsToMap(this.enemies);
     this.enemies.forEach((enemy) => {
       if (enemy.recentDead()) {
-        console.log("enemy died recently");
+        // console.log("enemy died recently");
         this.renderScoreInfo(enemy);
       }
     });
@@ -326,8 +327,11 @@ export class World {
 
   renderStartScreen(message) {
     this.ctx.reset();
-    this.ctx.fillStyle = "lightblue";
+    this.addToMap(this.startScreenBackground);
+
+    this.ctx.fillStyle = "rgba(100,100,250,0.2)";
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     this.ctx.strokeStyle = "white";
     this.ctx.lineWidth = 5;
     this.ctx.font = "80px LuckiestGuy";
@@ -335,6 +339,7 @@ export class World {
     this.ctx.textAlign = "center";
     this.ctx.strokeText("Sharky", canvas.width / 2, (canvas.height / 5) * 2);
     this.ctx.fillText("Sharky", canvas.width / 2, (canvas.height / 5) * 2);
+
     this.ctx.font = "40px LuckiestGuy";
     this.ctx.lineWidth = 3;
     this.ctx.fillStyle = "violet";
@@ -345,12 +350,19 @@ export class World {
   }
 
   renderEndScreen(message) {
+    this.renderTransparentBackground();
+    this.renderMainMessage(message);
+    this.renderLineRestart();
+    if (this.character.isDead() || !this.getNextLevel()) this.renderLineScore();
+  }
+
+  renderTransparentBackground() {
     this.ctx.fillStyle = "rgba(0,0,0,0.3)";
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-    let gradient = this.ctx.createLinearGradient(0, 0, canvas.width, 0);
-    gradient.addColorStop("0", "lightblue");
-    gradient.addColorStop("0.5", "magenta");
-    gradient.addColorStop("1.0", "orange");
+  }
+
+  renderMainMessage(message) {
+    let gradient = this.createGradient();
     this.ctx.strokeStyle = this.character.isDead() ? "grey" : "yellow";
     this.ctx.strokeWidth = 5;
     this.ctx.font = "60px LuckiestGuy";
@@ -359,9 +371,14 @@ export class World {
     this.ctx.lineWidth = 8;
     this.ctx.strokeText(message, canvas.width / 2, canvas.height / 2);
     this.ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+  }
 
-    this.renderLineRestart();
-    if (this.character.isDead() || !this.getNextLevel()) this.renderLineScore();
+  createGradient() {
+    let gradient = this.ctx.createLinearGradient(0, 0, canvas.width, 0);
+    gradient.addColorStop("0", "lightblue");
+    gradient.addColorStop("0.5", "magenta");
+    gradient.addColorStop("1.0", "orange");
+    return gradient;
   }
 
   renderLineRestart() {

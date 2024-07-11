@@ -14,7 +14,6 @@ export class MovableObject extends DrawableObject {
   animationInterval;
   lastHit = 0;
   hasDied = 0;
-  deathPosition = { x: 0, y: 0 };
 
   IMAGES = {
     DEAD: [],
@@ -91,7 +90,7 @@ export class MovableObject extends DrawableObject {
 
   hit(damage) {
     this.hp -= damage;
-    if (this.hp < 0) {
+    if (this.hp <= 0) {
       this.hp = 0;
       this.hasDied = new Date().getTime();
     } else {
