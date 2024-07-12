@@ -31,11 +31,11 @@ export class Endboss extends MovableObject {
 
   constructor() {
     super();
-    this.loadImagePaths(this.IMAGES.INTRO, 10, "../img/2.Enemy/3 Final Enemy/1.Introduce/");
-    this.loadImagePaths(this.IMAGES.FLOAT, 13, "../img/2.Enemy/3 Final Enemy/2.floating/");
-    this.loadImagePaths(this.IMAGES.ATTACK, 6, "../img/2.Enemy/3 Final Enemy/Attack/");
-    this.loadImagePaths(this.IMAGES.HURT, 4, "../img/2.Enemy/3 Final Enemy/Hurt/");
-    this.loadImagePaths(this.IMAGES.DEAD, 6, "../img/2.Enemy/3 Final Enemy/Dead/Mesa de trabajo 2_");
+    this.loadImagePaths(this.IMAGES.INTRO, 10, "img/2.Enemy/3 Final Enemy/1.Introduce/");
+    this.loadImagePaths(this.IMAGES.FLOAT, 13, "img/2.Enemy/3 Final Enemy/2.floating/");
+    this.loadImagePaths(this.IMAGES.ATTACK, 6, "img/2.Enemy/3 Final Enemy/Attack/");
+    this.loadImagePaths(this.IMAGES.HURT, 4, "img/2.Enemy/3 Final Enemy/Hurt/");
+    this.loadImagePaths(this.IMAGES.DEAD, 6, "img/2.Enemy/3 Final Enemy/Dead/Mesa de trabajo 2_");
 
     this.loadImagesToCache();
 

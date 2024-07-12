@@ -13,8 +13,8 @@ export class ThrowableObject extends MovableObject {
     this.direction = this.getDirection();
     this.position.x = this.getPosition(character);
     this.position.y = character.position.y + character.offset.y + this.width / 2;
-    if (this.type == "normal") this.loadImage("../img/1.Sharkie/4.Attack/Bubble trap/Bubble.png");
-    else this.loadImage("../img/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (for whale).png");
+    if (this.type == "normal") this.loadImage("img/1.Sharkie/4.Attack/Bubble trap/Bubble.png");
+    else this.loadImage("img/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (for whale).png");
     this.damage = this.type == "normal" ? 1 : 5;
   }
 

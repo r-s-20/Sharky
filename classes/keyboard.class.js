@@ -32,79 +32,74 @@ export class Keyboard {
       this.RIGHT = true;
       console.log(this);
     });
-    
+
     document.getElementById("btn-right").addEventListener("mouseup", (e) => {
       this.RIGHT = false;
-      console.log(this);
+      // console.log(this);
     });
 
     document.getElementById("btn-right").addEventListener("mouseout", (e) => {
       this.RIGHT = false;
-      console.log(this);
+      // console.log(this);
     });
 
     document.getElementById("btn-left").addEventListener("mousedown", (e) => {
       this.LEFT = true;
-      console.log(this);
+      // console.log(this);
     });
-    
+
     document.getElementById("btn-left").addEventListener("mouseup", (e) => {
       this.LEFT = false;
-      console.log(this);
+      // console.log(this);
     });
 
     document.getElementById("btn-left").addEventListener("mouseout", (e) => {
       this.LEFT = false;
-      console.log(this);
+      // console.log(this);
     });
 
     document.getElementById("btn-up").addEventListener("mousedown", (e) => {
       this.UP = true;
-      console.log(this);
+      // console.log(this);
     });
-    
+
     document.getElementById("btn-up").addEventListener("mouseup", (e) => {
       this.UP = false;
-      console.log(this);
+      // console.log(this);
     });
 
     document.getElementById("btn-up").addEventListener("mouseout", (e) => {
       this.UP = false;
-      console.log(this);
+      // console.log(this);
     });
 
     document.getElementById("btn-down").addEventListener("mousedown", (e) => {
       this.DOWN = true;
-      console.log(this);
+      // console.log(this);
     });
-    
+
     document.getElementById("btn-down").addEventListener("mouseup", (e) => {
       this.DOWN = false;
-      console.log(this);
     });
 
     document.getElementById("btn-down").addEventListener("mouseout", (e) => {
       this.DOWN = false;
-      console.log(this);
     });
-    
+
     document.getElementById("btn-shoot").addEventListener("mousedown", (e) => {
       this.SHOOT = true;
-      console.log(this);
     });
-    
+
     document.getElementById("btn-shoot").addEventListener("mouseup", (e) => {
       this.SHOOT = false;
-      console.log(this);
     });
-    
+
     document.getElementById("btn-shoot").addEventListener("mouseout", (e) => {
       this.SHOOT = false;
-      console.log(this);
     });
 
     window.addEventListener("keydown", (e) => {
-      console.log(e);
+      // console.log(e);
       switch (e.key) {
         case "ArrowUp":
           this.UP = true;
@@ -144,6 +139,12 @@ export class Keyboard {
           break;
         case "c":
           this.CONTROLS = true;
+          break;
+        case "q":
+          this.Q = true;
+          break;
+        case "m":
+          this.MUTE = true;
           break;
       }
       // console.log(e);
@@ -190,6 +191,13 @@ export class Keyboard {
           break;
         case "c":
           this.CONTROLS = false;
+          break;
+        case "q":
+          this.Q = false;
+          break;
+        case "m":
+          this.MUTE = false;
+
           break;
       }
       // console.log("release", this);

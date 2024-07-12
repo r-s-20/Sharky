@@ -3,8 +3,8 @@ import { MovableObject } from "./movable.object.class.js";
 export class CollectableObject extends MovableObject {
   IMAGES = [];
   itemPaths = {
-    "POISON": "../img/4. Marcadores/Posión/Animada/",
-    "COIN": "../img/4. Marcadores/1. Coins/",
+    "POISON": "img/4. Marcadores/Posión/Animada/",
+    "COIN": "img/4. Marcadores/1. Coins/",
   };
   itemSpeed = {
     "POISON": 15,

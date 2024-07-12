@@ -192,9 +192,10 @@ canvas {
   }
 }
 
-
-
-
+.info-text {
+  color: white;
+  font-size: 18px;
+}
 
 .d-none {
   display: none;
@@ -203,6 +204,12 @@ canvas {
 @media (display-mode: fullscreen) {
   .button {
     font-size: 60px;
+  }
+
+  .menuBtn {
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
   }
 
   canvas {
@@ -228,11 +235,21 @@ canvas {
   }
 }
 
-@media (max-height: 500px) {
+@media (min-height: 540px) {
+  .hud-container {
+    display: none;
+  }
+}
+
+@media (max-height: 540px) {
   canvas {
     margin: 0;
-    height: 400px;
+    height: 100vh;
     width: auto;
+  }
+
+  .info-text {
+    display: none;
   }
 
   .menuBtn {
@@ -251,9 +268,9 @@ canvas {
 }
 
 @media (max-height: 400px) {
-  canvas {
+  /* canvas {
     height: 360px;
-  }
+  } */
 
   .button {
     font-size: 16px;

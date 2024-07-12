@@ -31,22 +31,22 @@ export class Enemy extends MovableObject {
   swimSpeed;
 
   constructor() {
-    super().loadImage("../img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png");
+    super().loadImage("img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png");
     this.position.x = 300 + Math.random() * 1000;
     this.position.y = Math.random() * 350;
 
-    this.loadImagePaths(this.IMAGES.SWIM, 5, "../img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim");
+    this.loadImagePaths(this.IMAGES.SWIM, 5, "img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim");
     this.loadImagePaths(
       this.IMAGES.TRANSITION,
       5,
-      "../img/2.Enemy/1.Puffer fish (3 color options)/2.transition/1.transition"
+      "img/2.Enemy/1.Puffer fish (3 color options)/2.transition/1.transition"
     );
     this.loadImagePaths(
       this.IMAGES.BUBBLESWIM,
       5,
-      "../img/2.Enemy/1.Puffer fish (3 color options)/3.Bubbleeswim/1.bubbleswim"
+      "img/2.Enemy/1.Puffer fish (3 color options)/3.Bubbleeswim/1.bubbleswim"
     );
-    this.loadImagePaths(this.IMAGES.DEAD, 3, "../img/2.Enemy/1.Puffer fish (3 color options)/4.DIE/1.");
+    this.loadImagePaths(this.IMAGES.DEAD, 3, "img/2.Enemy/1.Puffer fish (3 color options)/4.DIE/1.");
 
     this.loadImagesToCache();
 

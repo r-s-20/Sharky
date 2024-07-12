@@ -12,15 +12,16 @@ export class Character extends MovableObject {
   level;
   world;
   attackRunning = false;
+  soundsMuted = false;
 
   IMAGES = {
     IDLE: [],
     SWIM: [],
     HURT_POISON: [],
     // HURT_SHOCK: [],
-    // ATTACK: [],
+    ATTACK: [],
     ATTACK_BUBBLE: [],
-    // SLEEP: [],
+    SLEEP: [],
     DEAD: [],
   };
 
@@ -29,9 +30,9 @@ export class Character extends MovableObject {
     SWIM: "SWIM",
     HURT_POISON: "HURT_POISON",
     // HURT_SHOCK: "HURT_SHOCK",
-    // ATTACK: "ATTACK",
+    ATTACK: "ATTACK",
     ATTACK_BUBBLE: "ATTACK_BUBBLE",
-    // SLEEP: "SLEEP",
+    SLEEP: "SLEEP",
     DEAD: "DEAD",
   };
 
@@ -43,19 +44,26 @@ export class Character extends MovableObject {
   maxBubbles = 7;
   bubbles = 1;
   swimming = false;
-  woosh_sound = new Audio("../audio/Arm Whoosh A.ogg");
-  splash_sound = new Audio("../audio/water_splashing_short.ogg");
-  hit_sound = new Audio("../audio/hit11.mp3.flac");
+  wooshSound = new Audio("audio/Arm Whoosh A.ogg");
+  splashSound = new Audio("audio/water_splashing_short.ogg");
+  hitSound = new Audio("audio/hit11.mp3.flac");
+  soundEffects = {
+    splash: this.splashSound,
+    hit: this.hitSound,
+    woosh: this.wooshSound,
+  };
   level;
 
   constructor(world) {
     super();
     this.world = world;
-    this.loadImagePaths(this.IMAGES.IDLE, 18, "../img/1.Sharkie/1.IDLE/");
-    this.loadImagePaths(this.IMAGES.SWIM, 6, "../img/1.Sharkie/3.Swim/");
-    this.loadImagePaths(this.IMAGES.DEAD, 12, "../img/1.Sharkie/6.dead/1.Poisoned/");
-    this.loadImagePaths(this.IMAGES.HURT_POISON, 4, "../img/1.Sharkie/5.Hurt/1.Poisoned/");
-    this.loadImagePaths(this.IMAGES.ATTACK_BUBBLE, 7, "../img/1.Sharkie/4.Attack/Bubble trap/Op2 (Without Bubbles)/");
+    this.loadImagePaths(this.IMAGES.IDLE, 18, "img/1.Sharkie/1.IDLE/");
+    this.loadImagePaths(this.IMAGES.SWIM, 6, "img/1.Sharkie/3.Swim/");
+    this.loadImagePaths(this.IMAGES.DEAD, 12, "img/1.Sharkie/6.dead/1.Poisoned/");
+    this.loadImagePaths(this.IMAGES.HURT_POISON, 4, "img/1.Sharkie/5.Hurt/1.Poisoned/");
+    this.loadImagePaths(this.IMAGES.ATTACK_BUBBLE, 7, "img/1.Sharkie/4.Attack/Bubble trap/Op2 (Without Bubbles)/");
+    this.loadImagePaths(this.IMAGES.ATTACK, 8, "img/1.Sharkie/4.Attack/Fin slap/");
+    this.loadImagePaths(this.IMAGES.SLEEP, 14, "img/1.Sharkie/2.Long_IDLE/");
 
     this.loadImagesToCache();
 
@@ -63,95 +71,159 @@ export class Character extends MovableObject {
     this.animate();
     // this.level = this.world.level;
   }
-reset() {
-  this.hp = this.maxHp;
-  this.coins = 0;
-  this.bubbles = 1;
-  this.currentState= this.state.IDLE;
-  this.position = { x: 50, y: 50 };
-  this.speedY = 0;
-  this.speedX = 5;
-  this.otherDirection = false;
-}
+  reset() {
+    this.hp = this.maxHp;
+    this.coins = 0;
+    this.bubbles = 1;
+    this.currentState = this.state.IDLE;
+    this.position = { x: 50, y: 50 };
+    this.speedY = 0;
+    this.speedX = 5;
+    this.otherDirection = false;
+  }
   animate() {
     this.applyGravity();
     if (this.isDead()) {
-      this.currentState = this.state.DEAD;
+      this.currentState = "DEAD";
       this.position.y = 100;
     }
 
-    setInterval(() => {
-      if (this.world.gameState !== "GAMEOVER") {
-        this.evaluateKeyboardInputs();
-      }
-    }, 1000 / 60);
-
+    this.update();
     let gameFrame = 0;
     setInterval(() => {
-      this.splash_sound.pause();
-      this.splash_sound.loop = true;
       gameFrame++;
-      if (!this.isDead()) {
-        this.applyAnimations(gameFrame);
+      this.handleAnimations(gameFrame);
+    }, 1000 / 60);
+  }
+
+  update() {
+    let updateInterval = setInterval(() => {
+      this.splashSound.pause();
+      this.splashSound.loop = true;
+      if (this.world.gameState == "GAMEOVER") {
+        // clearInterval(updateInterval);
+      } else {
+        if (this.currentState == "IDLE") {
+          this.handleIdleState();
+        } else if (this.currentState == this.state.SWIM) {
+          this.handleSwimmingState();
+        } else if (this.currentState == "HURT_POISON") {
+          if (!this.isHurt()) {
+            this.hitSound.pause();
+            if (keyboard.SHOOT) {
+              this.currentState = this.state.ATTACK_BUBBLE;
+            } else if (keyboard.Q) {
+              this.currentState = "ATTACK";
+            } else if (keyboard.RIGHT || keyboard.LEFT || keyboard.UP || keyboard.DOWN) {
+              this.currentState = this.state.SWIM;
+            } else this.currentState = this.state.IDLE;
+          } else {
+            this.hitSound.play();
+            this.checkMovementInputs();
+          }
+        }
+
+        // } else if (keyboard.SHOOT && !this.attackRunning) {
+        // this.movementRight();
+        // } else if (keyboard.LEFT && this.position.x > -50) {
+        // this.currentState = "SWIMMING";
+        // this.movementLeft();
+        //   } else {
+        //   }
+        //   else if (keyboard.RIGHT && this.position.x < this.world.level.level_end_x) {
+
+        //   if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
+        //     this.currentState = this.state.IDLE;
+        //   }
+        // }
+        // if (keyboard.UP) {
+        //   this.jump();
+        //   if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
+        //     this.currentState = this.state.SWIM;
+        //   }
+        // } else if (keyboard.DOWN) {
+        //   this.jump(-1);
+        //   if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
+        //     this.currentState = this.state.SWIM;
+        //   }
       }
     }, 1000 / 60);
   }
 
-  evaluateKeyboardInputs() {
+  muteSounds() {
+    console.log("muting character sound effects");
+    let sounds = Object.keys(this.soundEffects);
+    sounds.forEach((sound) => (this.soundEffects[sound].muted = true));
+  }
+
+  unmuteSounds() {
+    console.log("unmuting sound effects");
+    let sounds = Object.keys(this.soundEffects);
+    sounds.forEach((sound) => (this.soundEffects[sound].muted = false));
+  }
+
+  handleIdleState() {
     if (this.isHurt()) {
       this.currentState = this.state.HURT_POISON;
-      // this.hit_sound.play();
-    } else if (keyboard.SHOOT && !this.attackRunning) {
+    } else if (keyboard.SHOOT) {
       this.currentState = this.state.ATTACK_BUBBLE;
+    } else if (keyboard.Q) {
+      this.currentState = this.state.ATTACK;
+    } else if (keyboard.RIGHT || keyboard.LEFT || keyboard.UP || keyboard.DOWN) {
+      this.currentState = this.state.SWIM;
     }
-    if (keyboard.RIGHT && this.position.x < this.world.level.level_end_x) {
+  }
+
+  checkMovementInputs() {
+    if (keyboard.RIGHT) {
       this.movementRight();
-    } else if (keyboard.LEFT && this.position.x > -50) {
+    } else if (keyboard.LEFT) {
       this.movementLeft();
-    } else {
-      if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
-        this.currentState = this.state.IDLE;
-      }
     }
     if (keyboard.UP) {
       this.jump();
-      if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
-        this.currentState = this.state.SWIM;
-      }
     } else if (keyboard.DOWN) {
       this.jump(-1);
-      if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
-        this.currentState = this.state.SWIM;
-      }
     }
   }
 
-  applyAnimations(gameFrame) {
+  handleSwimmingState() {
+    this.splashSound.play();
+    this.checkMovementInputs();
     if (this.isHurt()) {
-      this.hurt();
-    } else if (this.currentState == this.state.ATTACK_BUBBLE) {
-      this.bubbleAttack();
-    } else if (this.currentState == this.state.SWIM) {
-      this.swim(gameFrame);
-    } else if (this.currentState == this.state.IDLE) {
-      this.idle(gameFrame);
+      this.currentState = this.state.HURT_POISON;
+    } else if (keyboard.SHOOT) {
+      this.currentState = this.state.ATTACK_BUBBLE;
+    } else if (keyboard.Q) {
+      this.currentState = "ATTACK";
+    } else if (keyboard.RIGHT || keyboard.LEFT || keyboard.UP || keyboard.DOWN) {
+      this.currentState = this.state.SWIM;
+    } else this.currentState = this.state.IDLE;
+  }
+
+  handleAnimations(gameFrame) {
+    // console.log("current state seen in animations", this.currentState);
+    if (!this.isDead()) {
+      if (this.currentState == this.state.HURT_POISON) {
+        this.hurt();
+      } else if (this.currentState == this.state.ATTACK_BUBBLE) {
+        this.bubbleAttack();
+      } else if (this.currentState == this.state.SWIM) {
+        this.swim(gameFrame);
+      } else if (this.currentState == this.state.IDLE) {
+        this.idle(gameFrame);
+      }
     }
   }
 
   movementRight() {
     this.otherDirection = false;
     this.position.x += this.speedX;
-    if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
-      this.currentState = this.state.SWIM;
-    }
   }
 
   movementLeft() {
     this.otherDirection = true;
     this.position.x -= this.speedX;
-    if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
-      this.currentState = this.state.SWIM;
-    }
   }
 
   idle(gameFrame) {
@@ -161,7 +233,7 @@ reset() {
   }
 
   swim(gameFrame) {
-    // this.splash_sound.play();
+    // this.splashSound.play();
     if (gameFrame % 6 == 0 && this.currentState == this.state.SWIM) {
       this.playAnimation(this.IMAGES.SWIM);
     }

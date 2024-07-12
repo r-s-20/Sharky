@@ -24,6 +24,7 @@ export class World {
   gameOverScreen;
   level;
   levels = ["level1", "level2"];
+  soundsMuted = false;
   currentLevel = this.levels[0];
   score = 0;
   startActive = false;
@@ -47,12 +48,14 @@ export class World {
     this.screen = new Screen(this);
     this.update();
     this.draw();
+    this.updateSoundControls();
   }
 
   update() {
     let frameCount = 0;
     setInterval(() => {
       frameCount++;
+
       // console.log("start active is", this.startActive);
       if (this.gameState == "GAMEOVER") {
         this.applyGameOverStatus();
@@ -68,14 +71,26 @@ export class World {
     }, 1000 / 60);
   }
 
+  updateSoundControls() {
+    setInterval(() => {
+      // console.log("interval running");
+      if (keyboard.MUTE && this.soundsMuted) {
+        this.soundsMuted = false;
+        this.character.unmuteSounds();
+        // console.log("unmuting sounds", this.soundsMuted);
+      } else if (keyboard.MUTE && !this.soundsMuted) {
+        this.soundsMuted = true;
+        this.character.muteSounds();
+        // console.log("muting sounds", this.soundsMuted);
+      }
+    }, 1000/15);
+  }
+
   applyStartStatus() {
-    this.textForScreenButton("START GAME");
     setTimeout(() => {
       if (this.gameState == "START" && this.startActive == false) this.startActive = true;
-    }, 2000);
-    this.showButtons("screenBtn");
-    this.hideButtons("menu");
-    this.hideButtons("hud-container");
+    }, 1000);
+    this.showStartButtons();
     if (keyboard.ENTER && this.startActive) {
       // console.log("setting start active to false");
       this.startActive = false;
@@ -87,20 +102,29 @@ export class World {
     }
   }
 
-  applyControlsStatus() {
-    this.textForScreenButton("GO BACK");
-    this.hideButtons("screenBtn");
-    this.showButtons("menu");
+  showStartButtons() {
+    this.textForScreenButton("START GAME");
+    this.showButtons("screenBtn");
+    this.hideButtons("menu");
     this.hideButtons("hud-container");
+  }
+
+  applyControlsStatus() {
+    this.showControlsButtons();
     if (keyboard.ESC) {
       this.gameState = "START";
     }
   }
 
-  applyLoadingStatus() {
+  showControlsButtons() {
+    this.textForScreenButton("GO BACK");
     this.hideButtons("screenBtn");
-    this.hideButtons("menu");
+    this.showButtons("menu");
     this.hideButtons("hud-container");
+  }
+
+  applyLoadingStatus() {
+    this.showLoadingButtons();
     this.loadLevelContents();
     setTimeout(() => {
       this.gameState = "RUNNING";
@@ -108,27 +132,33 @@ export class World {
     }, 1200);
   }
 
+  showLoadingButtons() {
+    this.hideButtons("screenBtn");
+    this.hideButtons("menu");
+    this.hideButtons("hud-container");
+  }
+
   applyGameOverStatus() {
-    // console.log("gameover is running", keyboard);
+    this.showGameOverButtons();
+    if (keyboard.ENTER) {
+      if (this.lastLevel() || this.character.isDead()) {
+        this.currentLevel = this.levels[0];
+        this.gameState = "START";
+      } else {
+        this.currentLevel = this.getNextLevel();
+        this.gameState = "LOADING";
+      }
+      this.character.reset();
+    }
+  }
+
+  showGameOverButtons() {
     this.showButtons("start-btn");
     this.hideButtons("hud-container");
     this.hideButtons("controls-btn");
     this.hideButtons("menu");
-    if (this.character.isDead() || !this.getNextLevel()) {
-      this.textForScreenButton("Restart");
-    } else this.textForScreenButton("Continue");
-    if (keyboard.ENTER) {
-      console.log("enter was pressed in gameover");
-      if (!this.getNextLevel() || this.character.isDead()) {
-        this.currentLevel = this.levels[0];
-        this.gameState = "START";
-        this.startActive = false;
-      } else {
-        this.currentLevel = this.getNextLevel();
-        this.gameState = this.gameState = "LOADING";
-      }
-      this.character.reset();
-    }
+    this.textForScreenButton("Continue");
+    if (this.character.isDead() || this.lastLevel()) this.textForScreenButton("Restart");
   }
 
   applyRunningStatus(frameCount) {
@@ -350,6 +380,11 @@ export class World {
     return false;
   }
 
+  lastLevel() {
+    if (!this.getNextLevel()) return true;
+    else return false;
+  }
+
   drawGameContents() {
     this.camera_x = -(this.character.position.x - 50);
     this.ctx.translate(this.camera_x, 0);
@@ -416,12 +451,13 @@ export class World {
     this.addToMap(this.statusBarHp);
     // this.addToMap(this.statusBarCoins);
     // this.addToMap(this.statusBarBubbles);
+    this.renderStatusTexts();
+  }
 
+  renderStatusTexts() {
     this.ctx.font = "bold 20px LuckiestGuy";
     this.ctx.strokeStyle = "grey";
     this.ctx.fillStyle = "#CC33AA";
-    // this.ctx.strokeText("hp: " + this.character.hp, 200, 40);
-    // this.ctx.fillText("hp: " + this.character.hp, 200, 40);
     this.ctx.strokeText("poison: " + this.character.bubbles, (canvas.width / 6) * 3, 45);
     this.ctx.fillText("poison: " + this.character.bubbles, (canvas.width / 6) * 3, 45);
     this.ctx.strokeText("coins: " + this.character.coins, (canvas.width / 6) * 4, 45);
@@ -463,7 +499,7 @@ export class World {
 
   loadScreens() {
     this.gameOverScreen = new DrawableObject();
-    this.gameOverScreen.loadImage("../img/6.Botones/Tittles/Game Over/Recurso 9.png");
+    this.gameOverScreen.loadImage("img/6.Botones/Tittles/Game Over/Recurso 9.png");
     // console.log(this.gameOverScreen);
   }
 
