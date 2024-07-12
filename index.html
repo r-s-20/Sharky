@@ -12,13 +12,48 @@
   <body>
     <h1>Sharky</h1>
     <div class="canvas-container flex-col">
-      <canvas id="canvas" width="720" height="480" onclick="event.preventDefault()"> </canvas>
-      <button id="start-btn" class="hud button">START GAME</button>
+      <canvas id="canvas" onclick="event.preventDefault()"> </canvas>
+      <!-- <canvas id="canvas" onclick="event.preventDefault()"> </canvas> -->
+      <button id="start-btn" class="start-btn screenBtn button">START GAME</button>
+      <button id="controls-btn" class="controls-btn screenBtn button">CONTROLS</button>
+      <button id="close-menu-btn" class="menuBtn menu button">X</button>
+      <div class="controls-info menu">
+        <div>
+          <span>UP: </span><span> <span>⬆</span> <span>or</span> <span>W</span></span>
+        </div>
+        <div>
+          <span>LEFT: </span><span> <span>⬅</span> <span>or</span> <span>A</span></span>
+        </div>
+        <div>
+          <span>DOWN: </span><span> <span>⬇</span> <span>or</span> <span>S</span></span>
+        </div>
+        <div>
+          <span>RIGHT: </span><span> <span>➡</span> <span>or</span> <span>D</span></span>
+        </div>
+        <div><span>BUBBLE: </span><span>E</span></div>
+        <div><span>FULL SCREEN: </span><span>F</span></div>
+        <div><span>START / NEXT: </span><span> ENTER</span></div>
+
+        <div><span>Leave menu: </span><span> ESC</span></div>
+      </div>
+      <div class="hud-container">
+        <div class="hud-left-container">
+          <button id="btn-left" class="button hud-button arrow-button">⬅</button>
+          <div class="hud-button-container">
+            <button id="btn-up" class="button hud-button arrow-button">⬆</button>
+            <button id="btn-down" class="button hud-button arrow-button">⬇</button>
+          </div>
+          <button id="btn-right" class="button hud-button arrow-button">➡</button>
+        </div>
+        <div class="hud-right-container">
+          <button id="btn-shoot" class="button hud-button">BUBBLE</button>
+        </div>
+      </div>
     </div>
     <div class="width-message">
       <p>
         Please enlarge<br />browser-window<br />
-        or <br />turn your device to play
+        or <br />turn your device to play<br />🔄
       </p>
     </div>
   </body>

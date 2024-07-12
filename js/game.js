@@ -6,6 +6,8 @@ globalThis.keyboard = keyboard;
 
 let canvas;
 let world;
+globalThis.CANVAS_WIDTH = 720;
+globalThis.CANVAS_HEIGHT = 480;
 
 window.addEventListener("load", () => {
   canvas = document.getElementById("canvas");

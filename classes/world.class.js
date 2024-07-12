@@ -3,9 +3,12 @@ import { createLevel2 } from "../levels/level2.js";
 import { Character } from "./character.class.js";
 import { DrawableObject } from "./drawable.object.class.js";
 import { BackgroundObject } from "./background.object.class.js";
-import { Endboss } from "./endboss.class.js";
+// import { Endboss } from "./endboss.class.js";
 import { StatusBar } from "./statusbar.class.js";
 import { ThrowableObject } from "./throwable-object.class.js";
+import { Enemy } from "./enemy.class.js";
+import { Endboss } from "./endboss.class.js";
+import { Screen } from "./screen.class.js";
 
 export class World {
   gameState = {
@@ -13,18 +16,23 @@ export class World {
     LOADING: "LOADING",
     RUNNING: "RUNNING",
     PAUSED: "PAUSED",
+    CONTROLS: "CONTROLS",
     GAMEOVER: "GAMEOVER",
   };
   bubbles = [];
-  creatingBubble = false;
+  isCreatingBubble = false;
   gameOverScreen;
   level;
   levels = ["level1", "level2"];
   currentLevel = this.levels[0];
   score = 0;
+  startActive = false;
   startScreenBackground = new BackgroundObject("./img/TitleBackground/Sharky.png", 0);
 
   constructor(canvas) {
+    this.canvas = canvas;
+    this.canvas.width = CANVAS_WIDTH;
+    this.canvas.height = CANVAS_HEIGHT;
     this.gameState = "START";
 
     this.loadScreens();
@@ -36,54 +44,130 @@ export class World {
     this.camera_x = 0;
 
     this.ctx = canvas.getContext("2d");
+    this.screen = new Screen(this);
     this.update();
     this.draw();
   }
 
   update() {
-    let active = false;
     let frameCount = 0;
-    let runInterval = setInterval(() => {
+    setInterval(() => {
       frameCount++;
+      // console.log("start active is", this.startActive);
       if (this.gameState == "GAMEOVER") {
-        let hudButtons = document.getElementsByClassName("hud");
-        for (let element of hudButtons) {
-          element.classList.remove("d-none");
-        }
-        clearInterval(runInterval);
-      }
-      if (this.gameState == "START") {
-        setTimeout(() => (active = true), 1000);
-        let hudButtons = document.getElementsByClassName("hud");
-        for (let element of hudButtons) {
-          element.classList.remove("d-none");
-        }
-        if (keyboard.ENTER && active) {
-          // console.log("changing to load");
-          this.gameState = "LOADING";
-          this.score = 0;
-        }
-      }
-      if (this.gameState == "LOADING") {
-        let hudButtons = document.getElementsByClassName("hud");
-        for (let element of hudButtons) {
-          element.classList.add("d-none");
-        }
-        this.loadLevelContents();
-        setTimeout(() => {
-          // console.log("changing to running", new Date().getTime());
-          this.gameState = "RUNNING";
-          if (this.gameState != "RUNNING") this.character.position.y = 50;
-        }, 900);
-      }
-      if (this.gameState == "RUNNING") {
-        this.updateStatusBars();
-        this.checkCollisions();
-        this.handleBubbles(frameCount);
-        this.handleEnemies();
-        this.checkFinalBossEntry();
+        this.applyGameOverStatus();
+      } else if (this.gameState == "START") {
+        this.applyStartStatus();
+      } else if (this.gameState == "CONTROLS") {
+        this.applyControlsStatus();
+      } else if (this.gameState == "LOADING") {
+        this.applyLoadingStatus();
+      } else if (this.gameState == "RUNNING") {
+        this.applyRunningStatus(frameCount);
       }
     }, 1000 / 60);
+  }
+
+  applyStartStatus() {
+    this.textForScreenButton("START GAME");
+    setTimeout(() => {
+      if (this.gameState == "START" && this.startActive == false) this.startActive = true;
+    }, 2000);
+    this.showButtons("screenBtn");
+    this.hideButtons("menu");
+    this.hideButtons("hud-container");
+    if (keyboard.ENTER && this.startActive) {
+      // console.log("setting start active to false");
+      this.startActive = false;
+      this.gameState = "LOADING";
+      this.score = 0;
+    } else if (keyboard.CONTROLS) {
+      this.startActive = false;
+      this.gameState = "CONTROLS";
+    }
+  }
+
+  applyControlsStatus() {
+    this.textForScreenButton("GO BACK");
+    this.hideButtons("screenBtn");
+    this.showButtons("menu");
+    this.hideButtons("hud-container");
+    if (keyboard.ESC) {
+      this.gameState = "START";
+    }
+  }
+
+  applyLoadingStatus() {
+    this.hideButtons("screenBtn");
+    this.hideButtons("menu");
+    this.hideButtons("hud-container");
+    this.loadLevelContents();
+    setTimeout(() => {
+      this.gameState = "RUNNING";
+      if (this.gameState != "RUNNING") this.character.position.y = 50;
+    }, 1200);
+  }
+
+  applyGameOverStatus() {
+    // console.log("gameover is running", keyboard);
+    this.showButtons("start-btn");
+    this.hideButtons("hud-container");
+    this.hideButtons("controls-btn");
+    this.hideButtons("menu");
+    if (this.character.isDead() || !this.getNextLevel()) {
+      this.textForScreenButton("Restart");
+    } else this.textForScreenButton("Continue");
+    if (keyboard.ENTER) {
+      console.log("enter was pressed in gameover");
+      if (!this.getNextLevel() || this.character.isDead()) {
+        this.currentLevel = this.levels[0];
+        this.gameState = "START";
+        this.startActive = false;
+      } else {
+        this.currentLevel = this.getNextLevel();
+        this.gameState = this.gameState = "LOADING";
+      }
+      this.character.reset();
+    }
+  }
+
+  applyRunningStatus(frameCount) {
+    this.showButtons("hud-container");
+    this.hideButtons("screenBtn");
+    this.updateStatusBars();
+    this.checkCollisions();
+    this.handleBubbles(frameCount);
+    // this.checkEnemyDamage();
+    this.handleDeadEnemies();
+    this.checkFinalBossAppeared();
+  }
+
+  /**
+   * Adjusts the button text of "Enter"-Button for start and loading screens
+   * @param {string} text - button-text
+   */
+  textForScreenButton(text) {
+    document.getElementById("start-btn").innerHTML = text;
+  }
+
+  /**Shows all buttons of provided class
+   * @param {string} buttonClass - css-class of elements to be shown
+   */
+  showButtons(buttonClass) {
+    let buttons = document.getElementsByClassName(buttonClass);
+    for (let button of buttons) {
+      button.classList.remove("d-none");
+    }
+  }
+
+  /**Hides all buttons of provided class
+   * @param {string} buttonClass - css-class of elements to be hidden
+   */
+  hideButtons(buttonClass) {
+    let buttons = document.getElementsByClassName(buttonClass);
+    for (let button of buttons) {
+      button.classList.add("d-none");
+    }
   }
 
   updateStatusBars() {
@@ -129,28 +213,55 @@ export class World {
   }
 
   collisionsBubbles() {
-    let endboss = this.enemies[this.enemies.length - 1];
     this.bubbles.forEach((bubble) => {
       this.enemies.forEach((enemy) => {
         if (bubble.isColliding(enemy) && !bubble.isDead() && !enemy.isDead()) {
-          bubble.hp = 0;
-          enemy.hit(bubble.damage);
-          if (endboss.hp <= 0) {
-            // console.log("you win!");
-            this.gameState = "GAMEOVER";
-          }
-          if (enemy.hp <= 0) {
-            this.score += enemy.score;
-          }
+          this.handleBubbleCollision(bubble, enemy);
         }
       });
     });
+  }
+
+  /** Calculate effects of bubble hitting enemy
+   * @param {ThrowableObject} bubble - bubble that collided with enemy
+   * @param {Enemy} enemy - enemy that collided with bubble
+   */
+  handleBubbleCollision(bubble, enemy) {
+    bubble.hp = 0;
+    enemy.hit(bubble.damage);
+    this.checkEnemyDying();
   }
 
   renderScoreInfo(enemy) {
     this.ctx.font = "30px LuckiestGuy";
     this.ctx.fillStyle = "blue";
     this.ctx.fillText(`+ ${enemy.score}`, enemy.position.x + enemy.offset.x + 20, enemy.position.y + enemy.offset.y);
+  }
+
+  /** Checks if an enemy is dying after an attack
+   * if enemy is dead, player score is increased and if
+   * final boss is dead, level or game is set to gameover
+   */
+  checkEnemyDying() {
+    this.enemies.forEach((enemy) => {
+      if (enemy.hp <= 0) {
+        this.score += enemy.score;
+        if (enemy instanceof Endboss) {
+          this.gameState = "GAMEOVER";
+        }
+      }
+    });
+  }
+
+  handleDeadEnemies() {
+    this.enemies.forEach((enemy, index) => {
+      if (enemy.isDead()) {
+        enemy.update();
+        if (enemy.position.y <= -20) {
+          this.enemies.splice(index, 1);
+        }
+      }
+    });
   }
 
   handleBubbles(frameCount) {
@@ -164,39 +275,32 @@ export class World {
     });
   }
 
-  handleEnemies() {
-    this.enemies.forEach((enemy, index) => {
-      if (enemy.isDead()) {
-        enemy.update();
-        if (enemy.position.y <= -20) {
-          this.enemies.splice(index, 1);
-        }
-        // console.log("is dead:", enemy);
-      }
-    });
-  }
-
   checkThrowing() {
-    if (keyboard.SHOOT && !this.creatingBubble && !this.character.isHurt()) {
-      this.creatingBubble = true;
+    if (keyboard.SHOOT && !this.isCreatingBubble && !this.character.isHurt()) {
+      this.isCreatingBubble = true;
+      setTimeout(() => this.createBubble(), 400);
       setTimeout(() => {
-        let bubble;
-        if (this.character.bubbles > 0) {
-          this.character.bubbles--;
-          bubble = new ThrowableObject(this.character, "poison");
-        } else {
-          bubble = new ThrowableObject(this.character);
-        }
-        this.bubbles.push(bubble);
-      }, 400);
-      setTimeout(() => {
-        this.creatingBubble = false;
+        this.isCreatingBubble = false;
       }, 1000);
-      // console.log("observed shoot", this.bubbles);
     }
   }
 
-  checkFinalBossEntry() {
+  /**creates a bubble to attack enemies
+   * if character has poison, the bubble will be poisoned
+   * (is green and does more damage)
+   */
+  createBubble() {
+    let bubble;
+    if (this.character.bubbles > 0) {
+      this.character.bubbles--;
+      bubble = new ThrowableObject(this.character, "poison");
+    } else {
+      bubble = new ThrowableObject(this.character);
+    }
+    this.bubbles.push(bubble);
+  }
+
+  checkFinalBossAppeared() {
     let finalEnemy = this.enemies[this.enemies.length - 1];
     if (this.character.position.x > 1000 && !finalEnemy.hasEntered) {
       finalEnemy.currentImage = 0;
@@ -216,10 +320,10 @@ export class World {
       this.renderStartScreen("");
     } else if (this.gameState == "LOADING") {
       this.renderStartScreen(`${this.currentLevel} loading...`);
-    }
-    if (this.gameState == "RUNNING" || this.gameState == "GAMEOVER") {
+    } else if (this.gameState == "CONTROLS") {
+      this.renderControlsScreen();
+    } else if (this.gameState == "RUNNING" || this.gameState == "GAMEOVER") {
       this.drawGameContents();
-      // console.log("this is still running");
       if (this.gameState == "GAMEOVER") {
         if (this.character.isDead()) {
           this.renderEndScreen("GAME OVER");
@@ -229,17 +333,6 @@ export class World {
           } else {
             this.renderEndScreen(`${this.currentLevel} complete!`);
           }
-        }
-        if (keyboard.ENTER) {
-          if (!this.getNextLevel() || this.character.isDead()) {
-            this.currentLevel = this.levels[0];
-            this.gameState = "START";
-          } else {
-            this.currentLevel = this.getNextLevel();
-            this.gameState = this.gameState = "LOADING";
-          }
-          this.character.reset();
-          this.update();
         }
       }
     }
@@ -338,73 +431,23 @@ export class World {
   }
 
   renderStartScreen(message) {
-    this.ctx.reset();
-    this.addToMap(this.startScreenBackground);
-
     this.ctx.fillStyle = "rgba(100,100,250,0.2)";
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+    this.addToMap(this.startScreenBackground);
+    this.screen.renderGameTitle();
+    this.screen.renderStartMessage(message);
+  }
 
-    this.ctx.strokeStyle = "white";
-    this.ctx.lineWidth = 5;
-    this.ctx.font = "80px LuckiestGuy";
-    this.ctx.fillStyle = "blue";
-    this.ctx.textAlign = "center";
-    this.ctx.strokeText("Sharky", canvas.width / 2, (canvas.height / 7) * 3);
-    this.ctx.fillText("Sharky", canvas.width / 2, (canvas.height / 7) * 3);
-
-    this.ctx.font = "40px LuckiestGuy";
-    this.ctx.lineWidth = 3;
-    this.ctx.fillStyle = "violet";
-    this.ctx.textAlign = "center";
-    this.ctx.strokeText(message, canvas.width / 2, (canvas.height / 5) * 4);
-    this.ctx.fillText(message, canvas.width / 2, (canvas.height / 5) * 4);
-    // this.addToMap(this.gameOverScreen);
+  renderControlsScreen() {
+    this.ctx.fillStyle = "rgba(100,100,250,0.2)";
+    this.ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   renderEndScreen(message) {
-    this.renderTransparentBackground();
-    this.renderMainMessage(message);
-    this.renderLineRestart();
-    if (this.character.isDead() || !this.getNextLevel()) this.renderLineScore();
-  }
-
-  renderTransparentBackground() {
-    this.ctx.fillStyle = "rgba(0,0,0,0.3)";
-    this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-  renderMainMessage(message) {
-    let gradient = this.createGradient();
-    this.ctx.strokeStyle = this.character.isDead() ? "grey" : "yellow";
-    this.ctx.strokeWidth = 5;
-    this.ctx.font = "60px LuckiestGuy";
-    this.ctx.fillStyle = this.character.isDead() ? "yellow" : gradient;
-    this.ctx.textAlign = "center";
-    this.ctx.lineWidth = 8;
-    this.ctx.strokeText(message, canvas.width / 2, canvas.height / 2);
-    this.ctx.fillText(message, canvas.width / 2, canvas.height / 2);
-  }
-
-  createGradient() {
-    let gradient = this.ctx.createLinearGradient(0, 0, canvas.width, 0);
-    gradient.addColorStop("0", "lightblue");
-    gradient.addColorStop("0.5", "magenta");
-    gradient.addColorStop("1.0", "orange");
-    return gradient;
-  }
-
-  renderLineRestart() {
-    this.ctx.lineWidth = 4;
-    this.ctx.strokeStyle = "white";
-    this.ctx.font = "30px LuckiestGuy";
-    this.ctx.fillStyle = "magenta";
-    let text = this.character.isDead() ? "Press ENTER to restart" : "Press ENTER to continue";
-    this.ctx.strokeText(text, canvas.width / 2, (canvas.height / 5) * 4);
-    this.ctx.fillText(text, canvas.width / 2, (canvas.height / 5) * 4);
-  }
-  renderLineScore() {
-    this.ctx.strokeText(`Your score is: ${this.score}`, canvas.width / 2, (canvas.height / 5) * 3.3);
-    this.ctx.fillText(`Your score is: ${this.score}`, canvas.width / 2, (canvas.height / 5) * 3.3);
+    this.screen.renderTransparentBackground();
+    this.screen.renderMainMessage(message);
+    // this.screen.renderLineRestart();
+    if (this.character.isDead() || !this.getNextLevel()) this.screen.renderLineScore();
   }
 
   loadLevelContents() {
