@@ -7,7 +7,7 @@ export class StatusBar extends DrawableObject {
   maxValue;
   IMAGES = [];
   statusBarPaths = {
-    "HP": "../img/4. Marcadores/orange/energy_",
+    "HP": "../img/4. Marcadores/energy_mixedcolors/energy_",
     "COINS": "../img/4. Marcadores/orange/coins_",
     "BUBBLES": "../img/4. Marcadores/orange/bubbles_",
   };
