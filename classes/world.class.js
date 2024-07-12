@@ -46,12 +46,18 @@ export class World {
     let runInterval = setInterval(() => {
       frameCount++;
       if (this.gameState == "GAMEOVER") {
+        let hudButtons = document.getElementsByClassName("hud");
+        for (let element of hudButtons) {
+          element.classList.remove("d-none");
+        }
         clearInterval(runInterval);
       }
       if (this.gameState == "START") {
         setTimeout(() => (active = true), 1000);
-        let startBtn = document.getElementById("start-btn");
-        startBtn.classList.remove("d-none");
+        let hudButtons = document.getElementsByClassName("hud");
+        for (let element of hudButtons) {
+          element.classList.remove("d-none");
+        }
         if (keyboard.ENTER && active) {
           // console.log("changing to load");
           this.gameState = "LOADING";
@@ -59,8 +65,10 @@ export class World {
         }
       }
       if (this.gameState == "LOADING") {
-        let startBtn = document.getElementById("start-btn");
-        startBtn.classList.add("d-none");
+        let hudButtons = document.getElementsByClassName("hud");
+        for (let element of hudButtons) {
+          element.classList.add("d-none");
+        }
         this.loadLevelContents();
         setTimeout(() => {
           // console.log("changing to running", new Date().getTime());
@@ -142,7 +150,7 @@ export class World {
   renderScoreInfo(enemy) {
     this.ctx.font = "30px LuckiestGuy";
     this.ctx.fillStyle = "blue";
-    this.ctx.fillText(`+ ${enemy.score}`, enemy.position.x + 15, enemy.position.y + 10);
+    this.ctx.fillText(`+ ${enemy.score}`, enemy.position.x + enemy.offset.x + 20, enemy.position.y + enemy.offset.y);
   }
 
   handleBubbles(frameCount) {
@@ -341,8 +349,8 @@ export class World {
     this.ctx.font = "80px LuckiestGuy";
     this.ctx.fillStyle = "blue";
     this.ctx.textAlign = "center";
-    this.ctx.strokeText("Sharky", canvas.width / 2, (canvas.height / 7*3));
-    this.ctx.fillText("Sharky", canvas.width / 2, (canvas.height / 7*3));
+    this.ctx.strokeText("Sharky", canvas.width / 2, (canvas.height / 7) * 3);
+    this.ctx.fillText("Sharky", canvas.width / 2, (canvas.height / 7) * 3);
 
     this.ctx.font = "40px LuckiestGuy";
     this.ctx.lineWidth = 3;
