@@ -38,12 +38,22 @@ export class Keyboard {
       console.log(this);
     });
 
+    document.getElementById("btn-right").addEventListener("mouseout", (e) => {
+      this.RIGHT = false;
+      console.log(this);
+    });
+
     document.getElementById("btn-left").addEventListener("mousedown", (e) => {
       this.LEFT = true;
       console.log(this);
     });
     
     document.getElementById("btn-left").addEventListener("mouseup", (e) => {
+      this.LEFT = false;
+      console.log(this);
+    });
+
+    document.getElementById("btn-left").addEventListener("mouseout", (e) => {
       this.LEFT = false;
       console.log(this);
     });
@@ -58,12 +68,22 @@ export class Keyboard {
       console.log(this);
     });
 
+    document.getElementById("btn-up").addEventListener("mouseout", (e) => {
+      this.UP = false;
+      console.log(this);
+    });
+
     document.getElementById("btn-down").addEventListener("mousedown", (e) => {
       this.DOWN = true;
       console.log(this);
     });
     
     document.getElementById("btn-down").addEventListener("mouseup", (e) => {
+      this.DOWN = false;
+      console.log(this);
+    });
+
+    document.getElementById("btn-down").addEventListener("mouseout", (e) => {
       this.DOWN = false;
       console.log(this);
     });
@@ -77,7 +97,11 @@ export class Keyboard {
       this.SHOOT = false;
       console.log(this);
     });
-
+    
+    document.getElementById("btn-shoot").addEventListener("mouseout", (e) => {
+      this.SHOOT = false;
+      console.log(this);
+    });
 
     window.addEventListener("keydown", (e) => {
       console.log(e);
