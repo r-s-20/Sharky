@@ -3,7 +3,6 @@ import { createLevel2 } from "../levels/level2.js";
 import { Character } from "./character.class.js";
 import { DrawableObject } from "./drawable.object.class.js";
 import { BackgroundObject } from "./background.object.class.js";
-// import { Endboss } from "./endboss.class.js";
 import { StatusBar } from "./statusbar.class.js";
 import { ThrowableObject } from "./throwable-object.class.js";
 import { Enemy } from "./enemy.class.js";
@@ -90,16 +89,20 @@ export class World {
   }
 
   applyStartStatus() {
+    this.audio.background.menu.play();
     setTimeout(() => {
       if (this.gameState == "START" && this.startActive == false) this.startActive = true;
     }, 1000);
     this.showStartButtons();
     if (keyboard.ENTER && this.startActive) {
+      this.audio.background.menu.pause();
+      this.audio.menu.button.play();
       // console.log("setting start active to false");
       this.startActive = false;
       this.gameState = "LOADING";
       this.score = 0;
     } else if (keyboard.CONTROLS) {
+      this.audio.menu.button.play();
       this.startActive = false;
       this.gameState = "CONTROLS";
     }
@@ -116,6 +119,7 @@ export class World {
     this.showControlsButtons();
     if (keyboard.ESC) {
       this.gameState = "START";
+      this.audio.menu.button.play();
     }
   }
 
@@ -142,8 +146,10 @@ export class World {
   }
 
   applyGameOverStatus() {
+    this.audio.background.level.pause();
     this.showGameOverButtons();
     if (keyboard.ENTER) {
+      this.audio.menu.button.play();
       if (this.lastLevel() || this.character.isDead()) {
         this.currentLevel = this.levels[0];
         this.gameState = "START";
@@ -165,6 +171,7 @@ export class World {
   }
 
   applyRunningStatus(frameCount) {
+    this.audio.background.level.play();
     this.showButtons("hud-container");
     this.hideButtons("screenBtn");
     this.updateStatusBars();
@@ -252,7 +259,7 @@ export class World {
     this.bubbles.forEach((bubble) => {
       this.enemies.forEach((enemy) => {
         if (bubble.isColliding(enemy) && !bubble.isDead() && !enemy.isDead()) {
-          this.audio.effects.woosh.play();
+          this.audio.effects.bubbleHit.play();
           this.handleBubbleCollision(bubble, enemy);
         }
       });
@@ -287,6 +294,7 @@ export class World {
   checkCharacterDying() {
     if (this.character.hp <= 0) {
       this.character.playDeathAnimation();
+      this.audio.effects.charDead.play();
       setTimeout(() => {
         this.gameState = "GAMEOVER";
         console.log("game over");
@@ -436,7 +444,7 @@ export class World {
     this.ctx.translate(this.camera_x, 0);
 
     this.addToMap(this.character);
-    this.drawCollisionRects();
+    // this.drawCollisionRects();
     this.bubbles.forEach((bubble) => bubble.update());
     this.addObjectsToMap(this.bubbles);
     this.ctx.translate(-this.camera_x, 0);
@@ -526,7 +534,9 @@ export class World {
     this.light = this.level.light;
     this.backgroundObjects = this.level.backgroundObjects;
     this.collectables = this.level.collectables;
-    this.enemies[this.enemies.length - 1].character = this.character;
+    let endboss = this.enemies[this.enemies.length - 1];
+    endboss.character = this.character;
+    endboss.audio = this.audio;
   }
 
   loadScreens() {

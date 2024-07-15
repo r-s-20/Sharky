@@ -10,6 +10,7 @@ export class Endboss extends MovableObject {
   hasEntered = false;
   character;
   speedX = 5;
+  audio;
 
   IMAGES = { INTRO: [], FLOAT: [], ATTACK: [], HURT: [], DEAD: [] };
 
@@ -93,6 +94,7 @@ export class Endboss extends MovableObject {
   introAnimation() {
     this.hasEntered = true;
     this.state = "INTRO";
+    this.audio.effects.entryEndboss.play();
     this.playSingleAnimation(this.IMAGES[this.state], this.animationSpeed[this.state]);
     setTimeout(() => {
       this.state = "FLOAT";
@@ -106,11 +108,13 @@ export class Endboss extends MovableObject {
   }
 
   playAttackAnimation() {
+    this.audio.effects.bossAttack.play();
     this.clearAllAnimationIntervals();
     this.playSingleAnimation(this.IMAGES.ATTACK, 1000 / 10, "ATTACK");
     let counter = 0;
     let movementInterval = setInterval(() => {
       if (counter >= 8) {
+        this.audio.effects.bossAttack.pause();
         clearInterval(movementInterval);
         this.state = "FLOAT";
         this.animate();
