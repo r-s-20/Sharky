@@ -29,6 +29,8 @@ export class World {
   score = 0;
   startActive = false;
   startScreenBackground = new BackgroundObject("./img/TitleBackground/Sharky.png", 0);
+  levelComplete = new Audio("audio/level_complete.ogg");
+  attackRunning = false;
 
   constructor(canvas) {
     this.canvas = canvas;
@@ -83,7 +85,7 @@ export class World {
         this.character.muteSounds();
         // console.log("muting sounds", this.soundsMuted);
       }
-    }, 1000/15);
+    }, 1000 / 15);
   }
 
   applyStartStatus() {
@@ -215,14 +217,15 @@ export class World {
 
   collisionsEnemies() {
     this.enemies.forEach((enemy) => {
+      // console.log("attack running", this.attackRunning);
       if (this.character.isColliding(enemy) && !this.character.isDead() && !enemy.isDead()) {
-        this.character.hit(2);
-        if (this.character.hp <= 0) {
-          this.character.playDeathAnimation();
-          setTimeout(() => {
-            this.gameState = "GAMEOVER";
-            console.log("game over");
-          }, 1000);
+        if (this.character.currentState == this.character.state.ATTACK && !this.attackRunning) {
+          if (this.attackRunning == false) {
+            this.performFinslapHit(enemy);
+          }
+        } else {
+          this.character.hit(2);
+          this.checkCharacterDying();
         }
       }
     });
@@ -261,11 +264,29 @@ export class World {
     enemy.hit(bubble.damage);
     this.checkEnemyDying();
   }
+  performFinslapHit(enemy) {
+    this.attackRunning = true;
+    enemy.hit(3);
+    console.log("doing 3 damage");
+    this.checkEnemyDying();
+    console.log("attack running", this.attackRunning);
+    setTimeout(() => (this.attackRunning = false), 1000);
+  }
 
   renderScoreInfo(enemy) {
     this.ctx.font = "30px LuckiestGuy";
     this.ctx.fillStyle = "blue";
     this.ctx.fillText(`+ ${enemy.score}`, enemy.position.x + enemy.offset.x + 20, enemy.position.y + enemy.offset.y);
+  }
+
+  checkCharacterDying() {
+    if (this.character.hp <= 0) {
+      this.character.playDeathAnimation();
+      setTimeout(() => {
+        this.gameState = "GAMEOVER";
+        console.log("game over");
+      }, 1000);
+    }
   }
 
   /** Checks if an enemy is dying after an attack
@@ -278,6 +299,7 @@ export class World {
         this.score += enemy.score;
         if (enemy instanceof Endboss) {
           this.gameState = "GAMEOVER";
+          this.levelComplete.play();
         }
       }
     });
@@ -404,7 +426,7 @@ export class World {
     this.ctx.translate(this.camera_x, 0);
 
     this.addToMap(this.character);
-    // this.drawCollisionRects();
+    this.drawCollisionRects();
     this.bubbles.forEach((bubble) => bubble.update());
     this.addObjectsToMap(this.bubbles);
     this.ctx.translate(-this.camera_x, 0);

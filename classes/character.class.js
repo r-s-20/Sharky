@@ -46,7 +46,7 @@ export class Character extends MovableObject {
   swimming = false;
   wooshSound = new Audio("audio/Arm Whoosh A.ogg");
   splashSound = new Audio("audio/water_splashing_short.ogg");
-  hitSound = new Audio("audio/hit11.mp3.flac");
+  hitSound = new Audio("audio/hit11_short.ogg");
   soundEffects = {
     splash: this.splashSound,
     hit: this.hitSound,
@@ -71,6 +71,7 @@ export class Character extends MovableObject {
     this.animate();
     // this.level = this.world.level;
   }
+
   reset() {
     this.hp = this.maxHp;
     this.coins = 0;
@@ -81,6 +82,7 @@ export class Character extends MovableObject {
     this.speedX = 5;
     this.otherDirection = false;
   }
+
   animate() {
     this.applyGravity();
     if (this.isDead()) {
@@ -103,49 +105,17 @@ export class Character extends MovableObject {
       if (this.world.gameState == "GAMEOVER") {
         // clearInterval(updateInterval);
       } else {
-        if (this.currentState == "IDLE") {
-          this.handleIdleState();
+        if (this.currentState == this.state.IDLE) {
+          this.checkState();
         } else if (this.currentState == this.state.SWIM) {
           this.handleSwimmingState();
-        } else if (this.currentState == "HURT_POISON") {
-          if (!this.isHurt()) {
-            this.hitSound.pause();
-            if (keyboard.SHOOT) {
-              this.currentState = this.state.ATTACK_BUBBLE;
-            } else if (keyboard.Q) {
-              this.currentState = "ATTACK";
-            } else if (keyboard.RIGHT || keyboard.LEFT || keyboard.UP || keyboard.DOWN) {
-              this.currentState = this.state.SWIM;
-            } else this.currentState = this.state.IDLE;
-          } else {
-            this.hitSound.play();
-            this.checkMovementInputs();
+        } else if (this.currentState == this.state.HURT_POISON) {
+          this.handleHurtState();
+        } else if ((this.currentState == this.state.ATTACK) | (this.currentState == this.state.ATTACK_BUBBLE)) {
+          if (!this.attackRunning) {
+            this.checkState();
           }
         }
-
-        // } else if (keyboard.SHOOT && !this.attackRunning) {
-        // this.movementRight();
-        // } else if (keyboard.LEFT && this.position.x > -50) {
-        // this.currentState = "SWIMMING";
-        // this.movementLeft();
-        //   } else {
-        //   }
-        //   else if (keyboard.RIGHT && this.position.x < this.world.level.level_end_x) {
-
-        //   if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
-        //     this.currentState = this.state.IDLE;
-        //   }
-        // }
-        // if (keyboard.UP) {
-        //   this.jump();
-        //   if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
-        //     this.currentState = this.state.SWIM;
-        //   }
-        // } else if (keyboard.DOWN) {
-        //   this.jump(-1);
-        //   if (!this.isHurt() && this.currentState !== "ATTACK_BUBBLE") {
-        //     this.currentState = this.state.SWIM;
-        //   }
       }
     }, 1000 / 60);
   }
@@ -162,7 +132,7 @@ export class Character extends MovableObject {
     sounds.forEach((sound) => (this.soundEffects[sound].muted = false));
   }
 
-  handleIdleState() {
+  checkState() {
     if (this.isHurt()) {
       this.currentState = this.state.HURT_POISON;
     } else if (keyboard.SHOOT) {
@@ -171,7 +141,7 @@ export class Character extends MovableObject {
       this.currentState = this.state.ATTACK;
     } else if (keyboard.RIGHT || keyboard.LEFT || keyboard.UP || keyboard.DOWN) {
       this.currentState = this.state.SWIM;
-    }
+    } else this.currentState = this.state.IDLE;
   }
 
   checkMovementInputs() {
@@ -190,15 +160,17 @@ export class Character extends MovableObject {
   handleSwimmingState() {
     this.splashSound.play();
     this.checkMovementInputs();
-    if (this.isHurt()) {
-      this.currentState = this.state.HURT_POISON;
-    } else if (keyboard.SHOOT) {
-      this.currentState = this.state.ATTACK_BUBBLE;
-    } else if (keyboard.Q) {
-      this.currentState = "ATTACK";
-    } else if (keyboard.RIGHT || keyboard.LEFT || keyboard.UP || keyboard.DOWN) {
-      this.currentState = this.state.SWIM;
-    } else this.currentState = this.state.IDLE;
+    this.checkState();
+  }
+
+  handleHurtState() {
+    if (!this.isHurt()) {
+      this.hitSound.pause();
+      this.checkState();
+    } else {
+      this.hitSound.play();
+      this.checkMovementInputs();
+    }
   }
 
   handleAnimations(gameFrame) {
@@ -208,6 +180,8 @@ export class Character extends MovableObject {
         this.hurt();
       } else if (this.currentState == this.state.ATTACK_BUBBLE) {
         this.bubbleAttack();
+      } else if (this.currentState == this.state.ATTACK) {
+        this.finslapAttack();
       } else if (this.currentState == this.state.SWIM) {
         this.swim(gameFrame);
       } else if (this.currentState == this.state.IDLE) {
@@ -218,12 +192,12 @@ export class Character extends MovableObject {
 
   movementRight() {
     this.otherDirection = false;
-    this.position.x += this.speedX;
+    if (this.position.x < this.world.level.level_end_x) this.position.x += this.speedX;
   }
 
   movementLeft() {
     this.otherDirection = true;
-    this.position.x -= this.speedX;
+    if (this.position.x > -50) this.position.x -= this.speedX;
   }
 
   idle(gameFrame) {
@@ -245,6 +219,23 @@ export class Character extends MovableObject {
       this.playSingleAnimation(this.IMAGES.ATTACK_BUBBLE, 1000 / 15);
       setTimeout(() => {
         this.currentState = this.state.IDLE;
+        this.attackRunning = false;
+      }, 1000);
+    }
+  }
+
+  finslapAttack() {
+    if (!this.attackRunning && !this.isHurt()) {
+      this.hitSound.play();
+      this.offset.width = -40;
+      this.attackRunning = true;
+      this.playSingleAnimation(this.IMAGES.ATTACK, 1000 / 15);
+      setTimeout(() => {
+        this.offset.width = -75;
+        this.hitSound.pause();
+        this.currentState = this.state.IDLE;
+      }, 700);
+      setTimeout(() => {
         this.attackRunning = false;
       }, 1000);
     }
