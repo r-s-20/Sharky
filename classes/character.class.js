@@ -1,5 +1,6 @@
 import { MovableObject } from "./movable.object.class.js";
 
+
 export class Character extends MovableObject {
   height = 200;
   width = 200;
@@ -13,6 +14,7 @@ export class Character extends MovableObject {
   world;
   attackRunning = false;
   soundsMuted = false;
+  
 
   IMAGES = {
     IDLE: [],
@@ -44,14 +46,14 @@ export class Character extends MovableObject {
   maxBubbles = 7;
   bubbles = 1;
   swimming = false;
-  wooshSound = new Audio("audio/Arm Whoosh A.ogg");
-  splashSound = new Audio("audio/water_splashing_short.ogg");
-  hitSound = new Audio("audio/hit11_short.ogg");
-  soundEffects = {
-    splash: this.splashSound,
-    hit: this.hitSound,
-    woosh: this.wooshSound,
-  };
+  // wooshSound = new Audio("audio/Arm Whoosh A.ogg");
+  // splashSound = new Audio("audio/water_splashing_short.ogg");
+  // hitSound = new Audio("audio/hit11_short.ogg");
+  // soundEffects = {
+  //   splash: this.splashSound,
+  //   hit: this.hitSound,
+  //   woosh: this.wooshSound,
+  // };
   level;
 
   constructor(world) {
@@ -69,6 +71,7 @@ export class Character extends MovableObject {
 
     this.loadImage(this.IMAGES.IDLE[0]);
     this.animate();
+    this.audio = world.audio;
     // this.level = this.world.level;
   }
 
@@ -100,8 +103,7 @@ export class Character extends MovableObject {
 
   update() {
     let updateInterval = setInterval(() => {
-      this.splashSound.pause();
-      this.splashSound.loop = true;
+      this.audio.effects.splash.pause();
       if (this.world.gameState == "GAMEOVER") {
         // clearInterval(updateInterval);
       } else {
@@ -118,18 +120,6 @@ export class Character extends MovableObject {
         }
       }
     }, 1000 / 60);
-  }
-
-  muteSounds() {
-    console.log("muting character sound effects");
-    let sounds = Object.keys(this.soundEffects);
-    sounds.forEach((sound) => (this.soundEffects[sound].muted = true));
-  }
-
-  unmuteSounds() {
-    console.log("unmuting sound effects");
-    let sounds = Object.keys(this.soundEffects);
-    sounds.forEach((sound) => (this.soundEffects[sound].muted = false));
   }
 
   checkState() {
@@ -158,17 +148,17 @@ export class Character extends MovableObject {
   }
 
   handleSwimmingState() {
-    this.splashSound.play();
+    this.audio.effects.splash.play();
     this.checkMovementInputs();
     this.checkState();
   }
 
   handleHurtState() {
     if (!this.isHurt()) {
-      this.hitSound.pause();
+      this.audio.effects.hitChar.pause();
       this.checkState();
     } else {
-      this.hitSound.play();
+      this.audio.effects.hitChar.play();
       this.checkMovementInputs();
     }
   }
@@ -207,7 +197,6 @@ export class Character extends MovableObject {
   }
 
   swim(gameFrame) {
-    // this.splashSound.play();
     if (gameFrame % 6 == 0 && this.currentState == this.state.SWIM) {
       this.playAnimation(this.IMAGES.SWIM);
     }
@@ -226,13 +215,13 @@ export class Character extends MovableObject {
 
   finslapAttack() {
     if (!this.attackRunning && !this.isHurt()) {
-      this.hitSound.play();
+      this.audio.effects.woosh.play();
       this.offset.width = -40;
       this.attackRunning = true;
       this.playSingleAnimation(this.IMAGES.ATTACK, 1000 / 15);
       setTimeout(() => {
         this.offset.width = -75;
-        this.hitSound.pause();
+        this.audio.effects.woosh.pause();
         this.currentState = this.state.IDLE;
       }, 700);
       setTimeout(() => {

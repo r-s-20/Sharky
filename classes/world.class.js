@@ -9,8 +9,10 @@ import { ThrowableObject } from "./throwable-object.class.js";
 import { Enemy } from "./enemy.class.js";
 import { Endboss } from "./endboss.class.js";
 import { Screen } from "./screen.class.js";
+import { AudioControl } from "../utils/audioControls.class.js";
 
 export class World {
+  audio = new AudioControl();
   gameState = {
     START: "START",
     LOADING: "LOADING",
@@ -29,7 +31,6 @@ export class World {
   score = 0;
   startActive = false;
   startScreenBackground = new BackgroundObject("./img/TitleBackground/Sharky.png", 0);
-  levelComplete = new Audio("audio/level_complete.ogg");
   attackRunning = false;
 
   constructor(canvas) {
@@ -78,12 +79,12 @@ export class World {
       // console.log("interval running");
       if (keyboard.MUTE && this.soundsMuted) {
         this.soundsMuted = false;
-        this.character.unmuteSounds();
-        // console.log("unmuting sounds", this.soundsMuted);
+        this.audio.unmuteAll();
+        console.log("unmuting sounds", this.soundsMuted);
       } else if (keyboard.MUTE && !this.soundsMuted) {
         this.soundsMuted = true;
-        this.character.muteSounds();
-        // console.log("muting sounds", this.soundsMuted);
+        this.audio.muteAll();
+        console.log("muting sounds", this.soundsMuted);
       }
     }, 1000 / 15);
   }
@@ -238,7 +239,9 @@ export class World {
         if (item.type == "COIN") {
           this.character.coins++;
           this.score++;
+          this.audio.playCoinSound();
         } else if (item.type == "POISON") {
+          this.audio.effects.poison.play();
           this.character.bubbles++;
         }
       }
@@ -249,6 +252,7 @@ export class World {
     this.bubbles.forEach((bubble) => {
       this.enemies.forEach((enemy) => {
         if (bubble.isColliding(enemy) && !bubble.isDead() && !enemy.isDead()) {
+          this.audio.effects.woosh.play();
           this.handleBubbleCollision(bubble, enemy);
         }
       });
@@ -267,6 +271,7 @@ export class World {
   performFinslapHit(enemy) {
     this.attackRunning = true;
     enemy.hit(3);
+    this.audio.effects.hit.play();
     console.log("doing 3 damage");
     this.checkEnemyDying();
     console.log("attack running", this.attackRunning);
@@ -299,7 +304,7 @@ export class World {
         this.score += enemy.score;
         if (enemy instanceof Endboss) {
           this.gameState = "GAMEOVER";
-          this.levelComplete.play();
+          this.audio.menu.levelComplete.play();
         }
       }
     });
@@ -330,9 +335,14 @@ export class World {
   checkThrowing() {
     if (keyboard.SHOOT && !this.isCreatingBubble && !this.character.isHurt()) {
       this.isCreatingBubble = true;
-      setTimeout(() => this.createBubble(), 400);
+      this.audio.effects.bubble.play();
+      setTimeout(() => {
+        this.audio.effects.bubble.play();
+        this.createBubble();
+      }, 400);
       setTimeout(() => {
         this.isCreatingBubble = false;
+        this.audio.effects.bubble.pause();
       }, 1000);
     }
   }
