@@ -92,8 +92,10 @@ section {
 
 .canvas-container {
   position: relative;
-  height: 90%;
-  width: 90%;
+  /* height: 70%; */
+  /* width: 90%; */
+  /* max-height: 70vh; */
+  /* max-width: 90vw; */
 }
 
 .audioControl {
@@ -153,7 +155,7 @@ section {
 }
 
 .controls-info {
-  width: 70%;
+  width: 80%;
   font-size: 26px;
   height: 70%;
   position: absolute;
@@ -253,6 +255,40 @@ section {
   font-size: 18px;
 }
 
+.legalHeader {
+  height: 30%;
+  padding: 36px;
+  font-size: 28px;
+  width: 40%;
+}
+
+.legalContent {
+  font-family: sans-serif;
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.legalContent a,
+.legalHeader a {
+  color: rgb(218, 104, 104);
+}
+
+.legalContent a:hover,
+.legalHeader a:hover {
+  filter: brightness(1.1);
+}
+
+.legalContent li {
+  list-style: none;
+}
+
+.legalContent span {
+  color: lightblue;
+}
+
 .d-none {
   display: none;
 }
@@ -270,6 +306,19 @@ section {
 
   canvas {
     width: unset;
+  }
+
+  .audioControl {
+    right: 12%;
+    top: 8%;
+    img {
+      height: 70px;
+    }
+  }
+
+  .privacy-btn {
+    font-size: 24px;
+    left: 10%;
   }
 }
 
@@ -328,7 +377,6 @@ section {
   }
 
   .controls-info {
-    width: 65%;
     font-size: 20px;
   }
 
@@ -342,7 +390,6 @@ section {
     height: 360px;
   } */
   .controls-info {
-    width: 70%;
     font-size: 18px;
   }
 

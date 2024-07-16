@@ -89,6 +89,9 @@ export class Endboss extends MovableObject {
       this.clearAllAnimationIntervals();
       this.playSingleAnimation(this.IMAGES[this.state], this.animationSpeed[this.state]);
     }
+    if (this.state != "ATTACK") {
+      this.audio.effects.bossAttack.pause();
+    }
   }
 
   introAnimation() {
@@ -99,7 +102,7 @@ export class Endboss extends MovableObject {
     setTimeout(() => {
       this.state = "FLOAT";
       this.animate();
-    }, 700);
+    }, 500);
   }
 
   getPlayerDistance() {
@@ -108,7 +111,9 @@ export class Endboss extends MovableObject {
   }
 
   playAttackAnimation() {
-    this.audio.effects.bossAttack.play();
+    if (this.hasEntered) {
+      this.audio.effects.bossAttack.play();
+    }
     this.clearAllAnimationIntervals();
     this.playSingleAnimation(this.IMAGES.ATTACK, 1000 / 10, "ATTACK");
     let counter = 0;
