@@ -6,11 +6,44 @@ export class Keyboard {
   SPACE = false;
   SHOOT = false;
   ENTER = false;
+  MUTE = false;
 
   constructor() {
     document.getElementById("start-btn").addEventListener("click", (e) => {
       this.ENTER = true;
       setTimeout(() => (this.ENTER = false), 200);
+    });
+
+    document.getElementById("audio-on").addEventListener("mousedown", (e) => {
+      this.MUTE = true;
+    });
+
+    document.getElementById("audio-on").addEventListener("touchstart", (e) => {
+      this.MUTE = true;
+    });
+
+    document.getElementById("audio-on").addEventListener("touchend", (e) => {
+      this.MUTE = false;
+    });
+
+    document.getElementById("audio-on").addEventListener("mouseup", (e) => {
+      this.MUTE = false;
+    });
+
+    document.getElementById("audio-off").addEventListener("mousedown", (e) => {
+      this.MUTE = true;
+    });
+
+    document.getElementById("audio-off").addEventListener("mouseup", (e) => {
+      this.MUTE = false;
+    });
+
+    document.getElementById("audio-off").addEventListener("touchstart", (e) => {
+      this.MUTE = true;
+    });
+
+    document.getElementById("audio-off").addEventListener("touchend", (e) => {
+      this.MUTE = false;
     });
 
     document.getElementById("controls-btn").addEventListener("click", (e) => {
@@ -20,62 +53,105 @@ export class Keyboard {
 
     document.getElementById("close-menu-btn").addEventListener("click", (e) => {
       this.ESC = true;
-      setTimeout(() => (this.ESC = false), 200);
+      setTimeout(() => (this.ESC = false), 100);
     });
 
     document.getElementById("close-menu-btn").addEventListener("click", (e) => {
       this.ESC = true;
-      setTimeout(() => (this.ESC = false), 200);
+      setTimeout(() => (this.ESC = false), 100);
+    });
+
+    document.getElementById("curtain").addEventListener("click", (e) => {
+      this.ESC = true;
+      setTimeout(() => (this.ESC = false), 100);
+    });
+
+    document.getElementById("curtain").addEventListener("click", (e) => {
+      this.ESC = true;
+      setTimeout(() => (this.ESC = false), 100);
     });
 
     document.getElementById("btn-right").addEventListener("mousedown", (e) => {
       this.RIGHT = true;
-      console.log(this);
+    });
+
+    document.getElementById("btn-right").addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.RIGHT = true;
     });
 
     document.getElementById("btn-right").addEventListener("mouseup", (e) => {
       this.RIGHT = false;
-      // console.log(this);
+    });
+
+    document.getElementById("btn-right").addEventListener("touchend", (e) => {
+      this.RIGHT = false;
     });
 
     document.getElementById("btn-right").addEventListener("mouseout", (e) => {
       this.RIGHT = false;
-      // console.log(this);
     });
 
     document.getElementById("btn-left").addEventListener("mousedown", (e) => {
       this.LEFT = true;
-      // console.log(this);
+    });
+
+    document.getElementById("btn-left").addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.LEFT = true;
+    });
+
+    document.getElementById("btn-left").addEventListener("touchend", (e) => {
+      e.preventDefault();
+      this.LEFT = false;
     });
 
     document.getElementById("btn-left").addEventListener("mouseup", (e) => {
       this.LEFT = false;
-      // console.log(this);
     });
 
     document.getElementById("btn-left").addEventListener("mouseout", (e) => {
       this.LEFT = false;
-      // console.log(this);
     });
 
     document.getElementById("btn-up").addEventListener("mousedown", (e) => {
       this.UP = true;
-      // console.log(this);
+    });
+
+    document.getElementById("btn-up").addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.UP = true;
+    });
+
+    document.getElementById("btn-up").addEventListener("touchend", (e) => {
+      e.preventDefault();
+      this.UP = false;
     });
 
     document.getElementById("btn-up").addEventListener("mouseup", (e) => {
       this.UP = false;
-      // console.log(this);
+    });
+
+    document.getElementById("btn-up").addEventListener("mousein", (e) => {
+      this.UP = true;
     });
 
     document.getElementById("btn-up").addEventListener("mouseout", (e) => {
       this.UP = false;
-      // console.log(this);
     });
 
     document.getElementById("btn-down").addEventListener("mousedown", (e) => {
       this.DOWN = true;
-      // console.log(this);
+    });
+
+    document.getElementById("btn-down").addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.DOWN = true;
+    });
+
+    document.getElementById("btn-down").addEventListener("touchend", (e) => {
+      e.preventDefault();
+      this.DOWN = false;
     });
 
     document.getElementById("btn-down").addEventListener("mouseup", (e) => {
@@ -90,12 +166,44 @@ export class Keyboard {
       this.SHOOT = true;
     });
 
+    document.getElementById("btn-shoot").addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.SHOOT = true;
+    });
+
+    document.getElementById("btn-shoot").addEventListener("touchend", (e) => {
+      e.preventDefault();
+      this.SHOOT = false;
+    });
+
     document.getElementById("btn-shoot").addEventListener("mouseup", (e) => {
       this.SHOOT = false;
     });
 
     document.getElementById("btn-shoot").addEventListener("mouseout", (e) => {
       this.SHOOT = false;
+    });
+
+    document.getElementById("btn-finslap").addEventListener("mousedown", (e) => {
+      this.FINSLAP = true;
+    });
+
+    document.getElementById("btn-finslap").addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.FINSLAP = true;
+    });
+
+    document.getElementById("btn-finslap").addEventListener("touchend", (e) => {
+      e.preventDefault();
+      this.FINSLAP = false;
+    });
+
+    document.getElementById("btn-finslap").addEventListener("mouseup", (e) => {
+      this.FINSLAP = false;
+    });
+
+    document.getElementById("btn-finslap").addEventListener("mouseout", (e) => {
+      this.FINSLAP = false;
     });
 
     window.addEventListener("keydown", (e) => {
@@ -141,7 +249,7 @@ export class Keyboard {
           this.CONTROLS = true;
           break;
         case "q":
-          this.Q = true;
+          this.FINSLAP = true;
           break;
         case "m":
           this.MUTE = true;
@@ -193,7 +301,7 @@ export class Keyboard {
           this.CONTROLS = false;
           break;
         case "q":
-          this.Q = false;
+          this.FINSLAP = false;
           break;
         case "m":
           this.MUTE = false;

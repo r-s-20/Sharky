@@ -2,16 +2,21 @@ import { createLevel1 } from "../levels/level1.js";
 import { createLevel2 } from "../levels/level2.js";
 import { Character } from "./character.class.js";
 import { DrawableObject } from "./drawable.object.class.js";
+import { StatusSymbol } from "./statusSymbol.class.js";
 import { BackgroundObject } from "./background.object.class.js";
 import { StatusBar } from "./statusbar.class.js";
 import { ThrowableObject } from "./throwable-object.class.js";
 import { Enemy } from "./enemy.class.js";
 import { Endboss } from "./endboss.class.js";
 import { Screen } from "./screen.class.js";
-import { AudioControl } from "../utils/audioControls.class.js";
+import { AudioControl } from "./audioControls.class.js";
 
 export class World {
   audio = new AudioControl();
+  soundsMuted = true;
+  statusSymbolCoins = new StatusSymbol("img/4. Marcadores/green/Coin_Symbol.png", 420, 12.5);
+  statusSymbolBubbles = new StatusSymbol("img/4. Marcadores/green/Bubbles_Symbol.png", 305, 5);
+
   gameState = {
     START: "START",
     LOADING: "LOADING",
@@ -25,7 +30,7 @@ export class World {
   gameOverScreen;
   level;
   levels = ["level1", "level2"];
-  soundsMuted = false;
+
   currentLevel = this.levels[0];
   score = 0;
   startActive = false;
@@ -37,13 +42,15 @@ export class World {
     this.canvas.width = CANVAS_WIDTH;
     this.canvas.height = CANVAS_HEIGHT;
     this.gameState = "START";
+    // this.gameState = "LOADING";
 
     this.loadScreens();
 
     this.character = new Character(this);
     this.statusBarHp = new StatusBar("HP", this.character.maxHp);
-    this.statusBarCoins = new StatusBar("COINS", this.character.maxCoins);
-    this.statusBarBubbles = new StatusBar("BUBBLES", this.character.maxBubbles);
+    // this.statusBarCoins = new StatusBar("COINS", this.character.maxCoins);
+    // this.statusBarBubbles = new StatusBar("BUBBLES", this.character.maxBubbles);
+
     this.camera_x = 0;
 
     this.ctx = canvas.getContext("2d");
@@ -51,13 +58,16 @@ export class World {
     this.update();
     this.draw();
     this.updateSoundControls();
+    if (this.soundsMuted) {
+      this.audio.muteAll();
+    }
   }
 
   update() {
     let frameCount = 0;
     setInterval(() => {
       frameCount++;
-
+      this.updateSoundIcon();
       // console.log("start active is", this.startActive);
       if (this.gameState == "GAMEOVER") {
         this.applyGameOverStatus();
@@ -73,17 +83,24 @@ export class World {
     }, 1000 / 60);
   }
 
+  updateSoundIcon() {
+    if (this.soundsMuted) {
+      document.getElementById("audio-off").classList.remove("d-none");
+      document.getElementById("audio-on").classList.add("d-none");
+    } else {
+      document.getElementById("audio-off").classList.add("d-none");
+      document.getElementById("audio-on").classList.remove("d-none");
+    }
+  }
+
   updateSoundControls() {
     setInterval(() => {
-      // console.log("interval running");
       if (keyboard.MUTE && this.soundsMuted) {
         this.soundsMuted = false;
         this.audio.unmuteAll();
-        console.log("unmuting sounds", this.soundsMuted);
       } else if (keyboard.MUTE && !this.soundsMuted) {
         this.soundsMuted = true;
         this.audio.muteAll();
-        console.log("muting sounds", this.soundsMuted);
       }
     }, 1000 / 15);
   }
@@ -110,7 +127,9 @@ export class World {
 
   showStartButtons() {
     this.textForScreenButton("START GAME");
+    this.showButtons("audioControl");
     this.showButtons("screenBtn");
+    this.hideButtons("curtain");
     this.hideButtons("menu");
     this.hideButtons("hud-container");
   }
@@ -124,7 +143,8 @@ export class World {
   }
 
   showControlsButtons() {
-    this.textForScreenButton("GO BACK");
+    this.showButtons("curtain");
+    this.hideButtons("audioControl");
     this.hideButtons("screenBtn");
     this.showButtons("menu");
     this.hideButtons("hud-container");
@@ -212,12 +232,9 @@ export class World {
 
   updateStatusBars() {
     this.statusBarHp.update(this.character.hp);
-    this.statusBarCoins.update(this.character.coins);
-    this.statusBarBubbles.update(this.character.bubbles);
   }
 
   checkCollisions() {
-    // console.log("checking collision");
     this.collisionsEnemies();
     this.collisionsCollectables();
     this.collisionsBubbles();
@@ -225,7 +242,6 @@ export class World {
 
   collisionsEnemies() {
     this.enemies.forEach((enemy) => {
-      // console.log("attack running", this.attackRunning);
       if (this.character.isColliding(enemy) && !this.character.isDead() && !enemy.isDead()) {
         if (this.character.currentState == this.character.state.ATTACK && !this.attackRunning) {
           if (this.attackRunning == false) {
@@ -279,9 +295,7 @@ export class World {
     this.attackRunning = true;
     enemy.hit(3);
     this.audio.effects.hit.play();
-    console.log("doing 3 damage");
     this.checkEnemyDying();
-    console.log("attack running", this.attackRunning);
     setTimeout(() => (this.attackRunning = false), 1000);
   }
 
@@ -297,7 +311,6 @@ export class World {
       this.audio.effects.charDead.play();
       setTimeout(() => {
         this.gameState = "GAMEOVER";
-        console.log("game over");
       }, 1000);
     }
   }
@@ -489,21 +502,23 @@ export class World {
 
   addStatusInfos() {
     this.addToMap(this.statusBarHp);
+    this.addToMap(this.statusSymbolBubbles);
+    this.addToMap(this.statusSymbolCoins);
     // this.addToMap(this.statusBarCoins);
     // this.addToMap(this.statusBarBubbles);
     this.renderStatusTexts();
   }
 
   renderStatusTexts() {
-    this.ctx.font = "bold 20px LuckiestGuy";
+    this.ctx.font = "bold 30px LuckiestGuy";
     this.ctx.strokeStyle = "grey";
-    this.ctx.fillStyle = "#CC33AA";
-    this.ctx.strokeText("poison: " + this.character.bubbles, (canvas.width / 6) * 3, 45);
-    this.ctx.fillText("poison: " + this.character.bubbles, (canvas.width / 6) * 3, 45);
-    this.ctx.strokeText("coins: " + this.character.coins, (canvas.width / 6) * 4, 45);
-    this.ctx.fillText("coins: " + this.character.coins, (canvas.width / 6) * 4, 45);
-    this.ctx.strokeText("score: " + this.score, (canvas.width / 6) * 5, 45);
-    this.ctx.fillText("score: " + this.score, (canvas.width / 6) * 5, 45);
+    this.ctx.fillStyle = "white";
+    // this.ctx.strokeText("poison: " + this.character.bubbles, (canvas.width / 6) * 3, 45);
+    this.ctx.fillText(this.character.bubbles, (canvas.width / 6) * 3, 50);
+    // this.ctx.strokeText("coins: " + this.character.coins, (canvas.width / 6) * 4, 45);
+    this.ctx.fillText(this.character.coins, (canvas.width / 6) * 4, 50);
+    // this.ctx.strokeText("score: " + this.score, (canvas.width / 6) * 5, 45);
+    this.ctx.fillText(this.score, (canvas.width / 6) * 4.8, 50);
   }
 
   renderStartScreen(message) {

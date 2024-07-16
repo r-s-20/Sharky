@@ -27,3 +27,18 @@ window.addEventListener("keydown", (e) => {
     }
   }
 });
+
+document.getElementById("audio-on").addEventListener("click", () => {
+  toggleAudioIcon();
+});
+
+document.getElementById("audio-off").addEventListener("click", () => {
+  toggleAudioIcon();
+});
+
+function toggleAudioIcon() {
+  let audioOn = document.getElementById("audio-on");
+  let audioOff = document.getElementById("audio-off");
+  audioOn.classList.toggle("d-none");
+  audioOff.classList.toggle("d-none");
+}

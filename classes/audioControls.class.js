@@ -68,12 +68,10 @@ export class AudioControl {
   }
 
   muteAll() {
-    console.log("muting character sound effects");
     this.allSounds.forEach((soundGroup) => this.muteSounds(soundGroup));
   }
 
   unmuteAll() {
-    console.log("unmuting sound effects");
     this.allSounds.forEach((soundGroup) => this.unmuteSounds(soundGroup));
   }
 

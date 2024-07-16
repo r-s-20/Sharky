@@ -1,6 +1,5 @@
 import { MovableObject } from "./movable.object.class.js";
 
-
 export class Character extends MovableObject {
   height = 200;
   width = 200;
@@ -14,7 +13,6 @@ export class Character extends MovableObject {
   world;
   attackRunning = false;
   soundsMuted = false;
-  
 
   IMAGES = {
     IDLE: [],
@@ -127,7 +125,7 @@ export class Character extends MovableObject {
       this.currentState = this.state.HURT_POISON;
     } else if (keyboard.SHOOT) {
       this.currentState = this.state.ATTACK_BUBBLE;
-    } else if (keyboard.Q) {
+    } else if (keyboard.FINSLAP) {
       this.currentState = this.state.ATTACK;
     } else if (keyboard.RIGHT || keyboard.LEFT || keyboard.UP || keyboard.DOWN) {
       this.currentState = this.state.SWIM;
