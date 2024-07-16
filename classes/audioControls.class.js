@@ -14,6 +14,7 @@ export class AudioControl {
   entryEndboss = new Audio("audio/explosion-fuzzy1.wav");
   bossAttack = new Audio("audio/bossAttack.ogg");
   menuButton = new Audio("audio/switch_01.ogg");
+  sleep = new Audio("audio/loop_bubbles_1.ogg");
 
   levelComplete = new Audio("audio/level_complete.ogg");
 
@@ -34,6 +35,7 @@ export class AudioControl {
     charDead: this.charDead,
     entryEndboss: this.entryEndboss,
     bossAttack: this.bossAttack,
+    sleep: this.sleep,
   };
 
   menu = {
@@ -53,6 +55,8 @@ export class AudioControl {
     this.effects.entryEndboss.volume = 0.3;
     this.effects.bossAttack.volume = 0.3;
     this.menu.button.volume = 0.4;
+    this.background.level.loop = true;
+    this.background.menu.loop = true;
   }
 
   playCoinSound() {

@@ -11,7 +11,7 @@ export class Keyboard {
   constructor() {
     document.getElementById("start-btn").addEventListener("click", (e) => {
       this.ENTER = true;
-      setTimeout(() => (this.ENTER = false), 200);
+      setTimeout(() => (this.ENTER = false), 100);
     });
 
     document.getElementById("audio-on").addEventListener("mousedown", (e) => {
@@ -48,7 +48,7 @@ export class Keyboard {
 
     document.getElementById("controls-btn").addEventListener("click", (e) => {
       this.CONTROLS = true;
-      setTimeout(() => (this.CONTROLS = false), 200);
+      setTimeout(() => (this.CONTROLS = false), 100);
     });
 
     document.getElementById("close-menu-btn").addEventListener("click", (e) => {

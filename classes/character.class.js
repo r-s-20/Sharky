@@ -13,6 +13,7 @@ export class Character extends MovableObject {
   world;
   attackRunning = false;
   soundsMuted = false;
+  idleCounter = 0;
 
   IMAGES = {
     IDLE: [],
@@ -44,14 +45,6 @@ export class Character extends MovableObject {
   maxBubbles = 7;
   bubbles = 1;
   swimming = false;
-  // wooshSound = new Audio("audio/Arm Whoosh A.ogg");
-  // splashSound = new Audio("audio/water_splashing_short.ogg");
-  // hitSound = new Audio("audio/hit11_short.ogg");
-  // soundEffects = {
-  //   splash: this.splashSound,
-  //   hit: this.hitSound,
-  //   woosh: this.wooshSound,
-  // };
   level;
 
   constructor(world) {
@@ -70,7 +63,6 @@ export class Character extends MovableObject {
     this.loadImage(this.IMAGES.IDLE[0]);
     this.animate();
     this.audio = world.audio;
-    // this.level = this.world.level;
   }
 
   reset() {
@@ -90,7 +82,6 @@ export class Character extends MovableObject {
       this.currentState = "DEAD";
       this.position.y = 100;
     }
-
     this.update();
     let gameFrame = 0;
     setInterval(() => {
@@ -103,9 +94,8 @@ export class Character extends MovableObject {
     let updateInterval = setInterval(() => {
       this.audio.effects.splash.pause();
       if (this.world.gameState == "GAMEOVER") {
-        // clearInterval(updateInterval);
       } else {
-        if (this.currentState == this.state.IDLE) {
+        if (this.currentState == this.state.IDLE || this.currentState== this.state.SLEEP) {
           this.checkState();
         } else if (this.currentState == this.state.SWIM) {
           this.handleSwimmingState();
@@ -121,15 +111,27 @@ export class Character extends MovableObject {
   }
 
   checkState() {
+    this.audio.effects.sleep.pause();
     if (this.isHurt()) {
+      this.resetIdleCounter();
       this.currentState = this.state.HURT_POISON;
     } else if (keyboard.SHOOT) {
+      this.resetIdleCounter();
       this.currentState = this.state.ATTACK_BUBBLE;
     } else if (keyboard.FINSLAP) {
+      this.resetIdleCounter();
       this.currentState = this.state.ATTACK;
     } else if (keyboard.RIGHT || keyboard.LEFT || keyboard.UP || keyboard.DOWN) {
+      this.resetIdleCounter();
       this.currentState = this.state.SWIM;
-    } else this.currentState = this.state.IDLE;
+    } else {
+      this.idleCounter++;
+      if (this.idleCounter > 60 * 15 && this.world.state == "RUNNING") {
+        this.currentState = this.state.SLEEP;
+      } else {
+        this.currentState = this.state.IDLE;
+      }
+    }
   }
 
   checkMovementInputs() {
@@ -174,6 +176,8 @@ export class Character extends MovableObject {
         this.swim(gameFrame);
       } else if (this.currentState == this.state.IDLE) {
         this.idle(gameFrame);
+      } else if (this.currentState == this.state.SLEEP) {
+        this.sleep(gameFrame);
       }
     }
   }
@@ -194,9 +198,20 @@ export class Character extends MovableObject {
     }
   }
 
+  resetIdleCounter() {
+    this.idleCounter = 0;
+  }
+
   swim(gameFrame) {
     if (gameFrame % 6 == 0 && this.currentState == this.state.SWIM) {
       this.playAnimation(this.IMAGES.SWIM);
+    }
+  }
+
+  sleep(gameFrame) {
+    this.audio.effects.sleep.play();
+    if (gameFrame % 4 == 0 && this.currentState == this.state.SLEEP) {
+      this.playAnimation(this.IMAGES.SLEEP);
     }
   }
 
@@ -213,9 +228,9 @@ export class Character extends MovableObject {
 
   finslapAttack() {
     if (!this.attackRunning && !this.isHurt()) {
+      this.attackRunning = true;
       this.audio.effects.woosh.play();
       this.offset.width = -40;
-      this.attackRunning = true;
       this.playSingleAnimation(this.IMAGES.ATTACK, 1000 / 15);
       setTimeout(() => {
         this.offset.width = -75;
