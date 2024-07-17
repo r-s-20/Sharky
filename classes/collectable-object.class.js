@@ -1,5 +1,12 @@
 import { MovableObject } from "./movable.object.class.js";
 
+/**
+ * Provides two kinds of collectable objects: Coins and poison.
+ *
+ * @export
+ * @class CollectableObject
+ * @extends {MovableObject}
+ */
 export class CollectableObject extends MovableObject {
   IMAGES = [];
   itemPaths = {
@@ -17,6 +24,15 @@ export class CollectableObject extends MovableObject {
   height = 50;
   width = 50;
 
+  /**
+   * Creates an instance of CollectableObject.
+   * y-Position is calculated randomly based on canvas height.
+   * x-Position is calculated randomly, but are on x-axis can be specified.
+   * Default for x-Position makes enemy appear near character spawn position.
+   * @param {string} type - might be "COIN" or "POISON"
+   * @param {number} [areaX=900] - the area on x-axis where object shall spawn.
+   * @memberof CollectableObject
+   */
   constructor(type, areaX=900) {
     super();
     this.type = type;
@@ -29,6 +45,10 @@ export class CollectableObject extends MovableObject {
   this.animate();
   }
 
+  /**
+   * Plays a simple animation in endless loop based on itemSpeed (number)
+   * @memberof CollectableObject
+   */
   animate() {
     setInterval( () => {
     this.playAnimation(this.IMAGES);

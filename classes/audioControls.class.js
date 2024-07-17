@@ -1,3 +1,11 @@
+/**
+ * This class contains all sounds used in the game and
+ * provides Methods to control mute/unmute for all sounds
+ * or sound groups like effects, background and menu sounds
+ *
+ * @export
+ * @class AudioControl
+ */
 export class AudioControl {
   wooshSound = new Audio("audio/Arm Whoosh A.ogg");
   splashSound = new Audio("audio/water_splashing_short.ogg");
@@ -22,6 +30,7 @@ export class AudioControl {
     menu: this.backgroundMenu,
     level: this.backgroundLevel,
   };
+  
   effects = {
     splash: this.splashSound,
     hitChar: this.hitChar,
@@ -45,8 +54,15 @@ export class AudioControl {
 
   allSounds = [this.effects, this.menu, this.background];
 
+  /**
+   * Creates an instance of AudioControl.
+   * Adjusts loop behaviour and volume for sounds.
+   * @memberof AudioControl
+   */
   constructor() {
     this.effects.splash.loop = true;
+    this.background.level.loop = true;
+    this.background.menu.loop = true;
     this.effects.splash.volume = 0.5;
     this.effects.hit.volume = 0.5;
     this.effects.hitChar.volume = 0.5;
@@ -55,10 +71,13 @@ export class AudioControl {
     this.effects.entryEndboss.volume = 0.3;
     this.effects.bossAttack.volume = 0.3;
     this.menu.button.volume = 0.4;
-    this.background.level.loop = true;
-    this.background.menu.loop = true;
   }
 
+  /**
+   * Randomly chooses one of two possible coin sounds
+   * and plays them.
+   * @memberof AudioControl
+   */
   playCoinSound() {
     let random = Math.random();
     if (random < 0.5) {
@@ -66,19 +85,39 @@ export class AudioControl {
     } else this.coin2.play();
   }
 
+  /**
+   * mutes one group of sounds
+   * @param {Object} soundGroup - possible values: effects, menu or background
+   * @memberof AudioControl
+   */
   muteSounds(soundGroup) {
     let sounds = Object.keys(soundGroup);
     sounds.forEach((sound) => (soundGroup[sound].muted = true));
   }
 
+  /**
+   * mutes all groups of sounds
+   * soundGroups are: effects, menu, background
+   * @memberof AudioControl
+   */
   muteAll() {
     this.allSounds.forEach((soundGroup) => this.muteSounds(soundGroup));
   }
 
+  /**
+   * mutes all groups of sounds
+   * soundGroups are: effects, menu, background
+   * @memberof AudioControl
+   */
   unmuteAll() {
     this.allSounds.forEach((soundGroup) => this.unmuteSounds(soundGroup));
   }
 
+  /**
+   * unmutes one group of sounds
+   * @param {Object} soundGroup - possible values: effects, menu or background
+   * @memberof AudioControl
+   */
   unmuteSounds(soundGroup) {
     let sounds = Object.keys(soundGroup);
     sounds.forEach((sound) => (soundGroup[sound].muted = false));

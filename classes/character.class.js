@@ -47,9 +47,20 @@ export class Character extends MovableObject {
   swimming = false;
   level;
 
+  /**
+   * Creates an instance of Character.
+   * Creates images for animatios and stores them into an ImageCache.
+   * One image of idle state is set to start game with.
+   * 
+   * @param {World} world - the world object in which character is created;
+   * allows interactions with other world objects and provides world audio
+   * @memberof Character
+   */
   constructor(world) {
     super();
     this.world = world;
+    this.audio = world.audio;
+
     this.loadImagePaths(this.IMAGES.IDLE, 18, "img/1.Sharkie/1.IDLE/");
     this.loadImagePaths(this.IMAGES.SWIM, 6, "img/1.Sharkie/3.Swim/");
     this.loadImagePaths(this.IMAGES.DEAD, 12, "img/1.Sharkie/6.dead/1.Poisoned/");
@@ -62,9 +73,14 @@ export class Character extends MovableObject {
 
     this.loadImage(this.IMAGES.IDLE[0]);
     this.animate();
-    this.audio = world.audio;
   }
 
+  /**
+   * Resets character base values like hp, coins, bubbles and
+   * character state (to default: idle). Useful when starting a new level.
+   *
+   * @memberof Character
+   */
   reset() {
     this.hp = this.maxHp;
     this.coins = 0;
@@ -76,6 +92,12 @@ export class Character extends MovableObject {
     this.otherDirection = false;
   }
 
+
+  /**
+   * Initializes different intervals that handle movement behaviour, 
+   * states and animations of character.
+   * @memberof Character
+   */
   animate() {
     this.applyGravity();
     if (this.isDead()) {
@@ -90,6 +112,12 @@ export class Character extends MovableObject {
     }, 1000 / 60);
   }
 
+  /**
+   * An interval at 60 fps that manages states and correct switching of states
+   * if keys are pressed or if character is hurt.
+   * 
+   * @memberof Character
+   */
   update() {
     let updateInterval = setInterval(() => {
       this.audio.effects.splash.pause();
@@ -110,6 +138,11 @@ export class Character extends MovableObject {
     }, 1000 / 60);
   }
 
+  /**
+   * Changes character state if character is hurt or key is pressed.
+   *
+   * @memberof Character
+   */
   checkState() {
     this.audio.effects.sleep.pause();
     if (this.isHurt()) {
@@ -134,6 +167,12 @@ export class Character extends MovableObject {
     }
   }
 
+  /**
+   * Checks movement inputs and moves character right, left, up or down
+   * without changing character state (e.g. when hurt or attacking)
+   *
+   * @memberof Character
+   */
   checkMovementInputs() {
     if (keyboard.RIGHT) {
       this.movementRight();
@@ -147,12 +186,24 @@ export class Character extends MovableObject {
     }
   }
 
+  /**
+   * Key presses in swimming state will always change character state.
+   * Movement is allowed.
+   * @memberof Character
+   */
   handleSwimmingState() {
     this.audio.effects.splash.play();
     this.checkMovementInputs();
     this.checkState();
   }
 
+
+  /**
+   * In hurt state, character movement is allowed, but change of state
+   * is only allowed if isHurt-Phase has ended.
+   *
+   * @memberof Character
+   */
   handleHurtState() {
     if (!this.isHurt()) {
       this.audio.effects.hitChar.pause();
@@ -163,6 +214,13 @@ export class Character extends MovableObject {
     }
   }
 
+  /**
+   * Takes care that correct single or looped animations are executed based on 
+   * character state.
+   * 
+   * @param {number} gameFrame - a number needed to adjust animation speed for some animations
+   * @memberof Character
+   */
   handleAnimations(gameFrame) {
     if (!this.isDead()) {
       if (this.currentState == this.state.HURT_POISON) {
@@ -181,32 +239,60 @@ export class Character extends MovableObject {
     }
   }
 
+  /**
+   * Moves character right as long as level-end is not reached
+   * @memberof Character
+   */
   movementRight() {
     this.otherDirection = false;
     if (this.position.x < this.world.level.level_end_x) this.position.x += this.speedX;
   }
 
+
+  /**
+   * Moves character left as long as default left-end of canvas is not reached
+   * @memberof Character
+   */
   movementLeft() {
     this.otherDirection = true;
     if (this.position.x > -50) this.position.x -= this.speedX;
   }
 
+  /**
+   * Plays idle animation based on gameFrame. Uses gameFrame to adjust speed
+   * @param {number} gameFrame - frame count of surrounding interval that calls idle()
+   * @memberof Character
+   */
   idle(gameFrame) {
     if (gameFrame % 4 == 0) {
       this.playAnimation(this.IMAGES.IDLE);
     }
   }
 
+  /**
+   *
+   * @memberof Character
+   */
   resetIdleCounter() {
     this.idleCounter = 0;
   }
 
+  /**
+   * Plays swim animation based on gameFrame. Uses gameFrame to adjust speed
+   * @param {number} gameFrame - frame count of surrounding interval that calls swim()
+   * @memberof Character
+   */
   swim(gameFrame) {
     if (gameFrame % 6 == 0 && this.currentState == this.state.SWIM) {
       this.playAnimation(this.IMAGES.SWIM);
     }
   }
 
+  /**
+   * Plays sleep animation based on gameFrame. Uses gameFrame to adjust speed
+   * @param {number} gameFrame - frame count of surrounding interval that calls sleep()
+   * @memberof Character
+   */
   sleep(gameFrame) {
     this.audio.effects.sleep.play();
     if (gameFrame % 4 == 0 && this.currentState == this.state.SLEEP) {
@@ -214,6 +300,13 @@ export class Character extends MovableObject {
     }
   }
 
+
+  /**
+   * Plays a single bubble attack-animation. Contains a timeout to ensure animation 
+   * can only restarted when finished.
+   *
+   * @memberof Character
+   */
   bubbleAttack() {
     if (!this.attackRunning && !this.isHurt()) {
       this.attackRunning = true;
@@ -225,6 +318,14 @@ export class Character extends MovableObject {
     }
   }
 
+  /**
+   * Controls finslap attack. Character gets a bigger offset to be able to hit enemies
+   * during attack without being injured.
+   * Has a timeout to ensure that attack won't start repeatedly, and an attack
+   * cooldown of 1s to avoid character-op by continuous attack
+   *
+   * @memberof Character
+   */
   finslapAttack() {
     if (!this.attackRunning && !this.isHurt()) {
       this.attackRunning = true;
@@ -242,6 +343,12 @@ export class Character extends MovableObject {
     }
   }
 
+  /**
+   * Interval that controls movements on y-axis based on y-position of character
+   * and based on character being alive or dead (will move up if dead)
+   *
+   * @memberof Character
+   */
   applyGravity() {
     setInterval(() => {
       if (this.world.gameState !== "GAMEOVER" && (this.isAboveGround() || this.speedY > 0)) {
@@ -263,10 +370,22 @@ export class Character extends MovableObject {
     clearInterval(this.animationInterval);
   }
 
+  /**
+   * Moves character on y-axis.
+   * @param {number} [dir=1] - direction parameter; 1 means moving up, -1 means moving down
+   * @memberof Character
+   */
   jump(dir = 1) {
     this.speedY = 4 * dir;
   }
 
+  /**
+   * Plays looped hurt animation as long as character has hart-state
+   * Also controls end of animation if character is dead
+   * 
+   * @param {array} [IMAGES=this.IMAGES.HURT_POISON] - array with animation images for hurt-state
+   * @memberof Character
+   */
   hurt(IMAGES = this.IMAGES.HURT_POISON) {
     this.currentImage = 0;
     let counter = 0;
@@ -283,6 +402,10 @@ export class Character extends MovableObject {
     this.currentState = this.state.IDLE;
   }
 
+  /**
+   * Plays a single death-animation
+   * @memberof Character
+   */
   playDeathAnimation() {
     this.currentImage = 0;
     let counter = 0;
