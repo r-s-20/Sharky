@@ -30,7 +30,7 @@ export class Endboss extends MovableObject {
     "DEAD": 1000 / 15,
   };
 
-  constructor(maxHp=25, positionX=1400) {
+  constructor(maxHp = 25, positionX = 1400) {
     super();
     this.loadImagePaths(this.IMAGES.INTRO, 10, "img/2.Enemy/3 Final Enemy/1.Introduce/");
     this.loadImagePaths(this.IMAGES.FLOAT, 13, "img/2.Enemy/3 Final Enemy/2.floating/");
@@ -45,7 +45,7 @@ export class Endboss extends MovableObject {
     this.animate();
     this.maxHp = maxHp;
     this.hp = maxHp;
-    this.position.x=positionX;
+    this.position.x = positionX;
   }
 
   /**
@@ -55,39 +55,82 @@ export class Endboss extends MovableObject {
   animate() {
     if (this.state == "FLOAT") {
       this.clearAllAnimationIntervals();
-      let gameFrame = 0;
-      let floatInterval = setInterval(() => {
-        this.update();
-        if (this.isHurt() && !this.isDead()) {
-          this.state = "HURT";
-          this.playHurtAnimation();
-        }
-        if (this.state !== "FLOAT") {
-          clearInterval(floatInterval);
-        }
-        if (gameFrame % 10 == 0) {
-          this.playAnimation(this.IMAGES.FLOAT);
-        }
-        gameFrame++;
-        if (!this.character.isDead() && !this.isDead()) {
-          if (this.getPlayerDistance >= 200) {
-            this.otherDirection = false;
-          } else if (this.getPlayerDistance() < 300 && this.getPlayerDistance() > 0) {
-            this.otherDirection = false;
-            this.state = "ATTACK";
-            this.playAttackAnimation();
-          }
-          if (this.getPlayerDistance() < -50) {
-            this.otherDirection = true;
-            if (this.getPlayerDistance() > -350) {
-              this.state = "ATTACK";
-              this.playAttackAnimation();
-            }
-          }
-        }
-      }, 1000 / 60);
-      this.animationIntervals.push(floatInterval);
+      this.handleStates();
     }
+  }
+
+  /**
+   * Checks if state needs to be changed and induces movement
+   * and attacks based on distance to character
+   */
+  handleStates() {
+    let gameFrame = 0;
+    let floatInterval = setInterval(() => {
+      this.update();
+      if (this.isHurt() && !this.isDead()) {
+        this.state = "HURT";
+        this.playHurtAnimation();
+      }
+      if (this.state !== "FLOAT") {
+        clearInterval(floatInterval);
+      }
+      if (gameFrame % 10 == 0) {
+        this.playAnimation(this.IMAGES.FLOAT);
+      }
+      gameFrame++;
+      this.checkBehaviour();
+    }, 1000 / 60);
+    this.animationIntervals.push(floatInterval);
+  }
+
+  /**
+   * Adjusts otherDirection based on character position and
+   * starts attack if character is close enough
+   */
+  checkBehaviour() {
+    if (!this.character.isDead() && !this.isDead()) {
+      this.checkDirection();
+      if (this.getPlayerDistance() < 300 && this.getPlayerDistance() > 0) {
+        this.attackLeft();
+      }
+      if (this.getPlayerDistance() < -50) {
+        this.attackRight();
+      }
+    }
+  }
+  
+  /**
+   * Ensures that otherDirection is set to false 
+   * if character is on left side of Endboss
+   *
+   * @memberof Endboss
+   */
+  checkDirection() {
+    if (this.getPlayerDistance >= 200) {
+      this.otherDirection = false;
+    }
+  }
+
+  /**
+   * Attack behaviour for character on right side of boss
+   * @memberof Endboss
+   */
+  attackRight() {
+    this.otherDirection = true;
+    if (this.getPlayerDistance() > -350) {
+      this.state = "ATTACK";
+      this.playAttackAnimation();
+    }
+  }
+
+  /**
+   * Attack behaviour for character on left side of boss
+   * @memberof Endboss
+   */
+  attackLeft() {
+    this.otherDirection = false;
+    this.state = "ATTACK";
+    this.playAttackAnimation();
   }
 
   /** can be called to check if boss dying state needs to started */
@@ -103,7 +146,7 @@ export class Endboss extends MovableObject {
   }
 
   /**
-   * Controls INTRO-state for boss, interval speed for intro animation and 
+   * Controls INTRO-state for boss, interval speed for intro animation and
    * intro sequence audio
    */
   introAnimation() {
@@ -122,7 +165,7 @@ export class Endboss extends MovableObject {
   }
 
   /**
-   * Controls endboss attack animation speed, movement during attack, 
+   * Controls endboss attack animation speed, movement during attack,
    * change to float-state after end of attack and attack sound
    *
    * @memberof Endboss
@@ -148,7 +191,6 @@ export class Endboss extends MovableObject {
     this.animationIntervals.push(movementInterval);
   }
 
-  
   /**
    * Ensures that hurt animation ends if boss is dead, controls hurt animation speed
    * and switch back to float status after end of animation

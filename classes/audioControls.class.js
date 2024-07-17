@@ -22,7 +22,7 @@ export class AudioControl {
   entryEndboss = new Audio("audio/explosion-fuzzy1.wav");
   bossAttack = new Audio("audio/bossAttack.ogg");
   menuButton = new Audio("audio/switch_01.ogg");
-  sleep = new Audio("audio/loop_bubbles_1.ogg");
+  sleep = new Audio("audio/bubbles-single2.wav");
 
   levelComplete = new Audio("audio/level_complete.ogg");
 

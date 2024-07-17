@@ -165,7 +165,10 @@ export class World {
     this.loadLevelContents();
     setTimeout(() => {
       this.gameState = "RUNNING";
-      if (this.gameState != "RUNNING") this.character.position.y = 50;
+      if (this.gameState != "RUNNING") {
+        this.character.position.y = 50;
+        this.character.idleCounter = 0;
+      }
     }, 1200);
   }
 
