@@ -387,7 +387,7 @@ export class World {
   handleDeadEnemies() {
     this.enemies.forEach((enemy, index) => {
       if (enemy.isDead()) {
-        enemy.update();
+        enemy.checkDead();
         if (enemy.position.y <= -20) {
           this.enemies.splice(index, 1);
         }

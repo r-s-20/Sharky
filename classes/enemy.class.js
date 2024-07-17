@@ -70,12 +70,12 @@ export class Enemy extends MovableObject {
   }
 
   /**
-   * A function that can be called to induce dead state and death animation based
+   * Induce dead state and death animation based
    * on .isDead()-status of Enemy
    *
    * @memberof Enemy
    */
-  update() {
+  checkDead() {
     if (this.isDead() && this.state != "DEAD") {
       this.state = "DEAD";
       this.playSingleAnimation(this.IMAGES[this.state], this.animationSpeed[this.state]);

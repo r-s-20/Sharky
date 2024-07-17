@@ -66,7 +66,8 @@ export class Endboss extends MovableObject {
   handleStates() {
     let gameFrame = 0;
     let floatInterval = setInterval(() => {
-      this.update();
+      this.audio.effects.bossAttack.pause();
+      this.checkDead();
       if (this.isHurt() && !this.isDead()) {
         this.state = "HURT";
         this.playHurtAnimation();
@@ -98,9 +99,9 @@ export class Endboss extends MovableObject {
       }
     }
   }
-  
+
   /**
-   * Ensures that otherDirection is set to false 
+   * Ensures that otherDirection is set to false
    * if character is on left side of Endboss
    *
    * @memberof Endboss
@@ -133,15 +134,12 @@ export class Endboss extends MovableObject {
     this.playAttackAnimation();
   }
 
-  /** can be called to check if boss dying state needs to started */
-  update() {
+  /** can be called to check if boss dying state needs to be started */
+  checkDead() {
     if (this.isDead() && this.state != "DEAD") {
       this.state = "DEAD";
       this.clearAllAnimationIntervals();
       this.playSingleAnimation(this.IMAGES[this.state], this.animationSpeed[this.state]);
-    }
-    if (this.state != "ATTACK") {
-      this.audio.effects.bossAttack.pause();
     }
   }
 

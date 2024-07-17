@@ -71,6 +71,7 @@ export class AudioControl {
     this.effects.entryEndboss.volume = 0.3;
     this.effects.bossAttack.volume = 0.3;
     this.menu.button.volume = 0.4;
+    this.effects.sleep.volume = 0.2;
   }
 
   /**
