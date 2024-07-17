@@ -42,14 +42,11 @@ export class World {
     this.canvas.width = CANVAS_WIDTH;
     this.canvas.height = CANVAS_HEIGHT;
     this.gameState = "START";
-    // this.gameState = "LOADING";
 
     this.loadScreens();
 
     this.character = new Character(this);
     this.statusBarHp = new StatusBar("HP", this.character.maxHp);
-    // this.statusBarCoins = new StatusBar("COINS", this.character.maxCoins);
-    // this.statusBarBubbles = new StatusBar("BUBBLES", this.character.maxBubbles);
 
     this.camera_x = 0;
 
@@ -68,7 +65,6 @@ export class World {
     setInterval(() => {
       frameCount++;
       this.updateSoundIcon();
-      // console.log("start active is", this.startActive);
       if (this.gameState == "GAMEOVER") {
         this.applyGameOverStatus();
       } else if (this.gameState == "START") {
@@ -114,7 +110,6 @@ export class World {
     if (keyboard.ENTER && this.startActive) {
       this.audio.background.menu.pause();
       this.audio.menu.button.play();
-      // console.log("setting start active to false");
       this.startActive = false;
       this.gameState = "LOADING";
       this.score = 0;
@@ -197,7 +192,6 @@ export class World {
     this.updateStatusBars();
     this.checkCollisions();
     this.handleBubbles(frameCount);
-    // this.checkEnemyDamage();
     this.handleDeadEnemies();
     this.checkFinalBossAppeared();
   }
@@ -245,7 +239,7 @@ export class World {
       if (this.character.isColliding(enemy) && !this.character.isDead() && !enemy.isDead()) {
         if (this.character.currentState == this.character.state.ATTACK && !this.attackRunning) {
           if (this.attackRunning == false) {
-            this.performFinslapHit(enemy);
+            this.handleFinslapHit(enemy);
           }
         } else {
           this.character.hit(2);
@@ -291,7 +285,14 @@ export class World {
     enemy.hit(bubble.damage);
     this.checkEnemyDying();
   }
-  performFinslapHit(enemy) {
+
+  /**
+   * Handles damage calculation & timeout and plays a sound if finslap attack
+   * hits an enemy
+   * @param {Enemy} enemy - enemy that has been hit with finslap attack
+   * @memberof World
+   */
+  handleFinslapHit(enemy) {
     this.attackRunning = true;
     enemy.hit(3);
     this.audio.effects.hit.play();
@@ -385,7 +386,7 @@ export class World {
 
   checkFinalBossAppeared() {
     let finalEnemy = this.enemies[this.enemies.length - 1];
-    if (this.character.position.x > 1000 && !finalEnemy.hasEntered) {
+    if (this.character.position.x > finalEnemy.position.x - 400 && !finalEnemy.hasEntered) {
       finalEnemy.currentImage = 0;
       finalEnemy.introAnimation();
       finalEnemy.position.y = 0;
@@ -446,7 +447,6 @@ export class World {
     this.addObjectsToMap(this.enemies);
     this.enemies.forEach((enemy) => {
       if (enemy.recentDead()) {
-        // console.log("enemy died recently");
         this.renderScoreInfo(enemy);
       }
     });
@@ -504,8 +504,6 @@ export class World {
     this.addToMap(this.statusBarHp);
     this.addToMap(this.statusSymbolBubbles);
     this.addToMap(this.statusSymbolCoins);
-    // this.addToMap(this.statusBarCoins);
-    // this.addToMap(this.statusBarBubbles);
     this.renderStatusTexts();
   }
 
@@ -513,11 +511,8 @@ export class World {
     this.ctx.font = "bold 30px LuckiestGuy";
     this.ctx.strokeStyle = "grey";
     this.ctx.fillStyle = "white";
-    // this.ctx.strokeText("poison: " + this.character.bubbles, (canvas.width / 6) * 3, 45);
     this.ctx.fillText(this.character.bubbles, (canvas.width / 6) * 3, 50);
-    // this.ctx.strokeText("coins: " + this.character.coins, (canvas.width / 6) * 4, 45);
     this.ctx.fillText(this.character.coins, (canvas.width / 6) * 4, 50);
-    // this.ctx.strokeText("score: " + this.score, (canvas.width / 6) * 5, 45);
     this.ctx.fillText(this.score, (canvas.width / 6) * 4.8, 50);
   }
 
@@ -537,7 +532,6 @@ export class World {
   renderEndScreen(message) {
     this.screen.renderTransparentBackground();
     this.screen.renderMainMessage(message);
-    // this.screen.renderLineRestart();
     if (this.character.isDead() || !this.getNextLevel()) this.screen.renderLineScore();
   }
 
@@ -557,7 +551,6 @@ export class World {
   loadScreens() {
     this.gameOverScreen = new DrawableObject();
     this.gameOverScreen.loadImage("img/6.Botones/Tittles/Game Over/Recurso 9.png");
-    // console.log(this.gameOverScreen);
   }
 
   drawCollisionRects() {

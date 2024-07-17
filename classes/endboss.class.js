@@ -3,7 +3,7 @@ import { MovableObject } from "./movable.object.class.js";
 export class Endboss extends MovableObject {
   width = 350;
   height = 350;
-  hp = 10;
+  hp = 25;
   score = 50;
   position = { x: 1400, y: -300 };
   offset = { x: 12, y: 150, height: -200, width: -30 };
@@ -30,7 +30,7 @@ export class Endboss extends MovableObject {
     "DEAD": 1000 / 15,
   };
 
-  constructor() {
+  constructor(hp=25, positionX=1400) {
     super();
     this.loadImagePaths(this.IMAGES.INTRO, 10, "img/2.Enemy/3 Final Enemy/1.Introduce/");
     this.loadImagePaths(this.IMAGES.FLOAT, 13, "img/2.Enemy/3 Final Enemy/2.floating/");
@@ -43,6 +43,8 @@ export class Endboss extends MovableObject {
     this.loadImage(this.IMAGES.INTRO[0]);
     this.state = "";
     this.animate();
+    this.hp = hp;
+    this.position.x=positionX;
   }
 
   animate() {
@@ -106,7 +108,6 @@ export class Endboss extends MovableObject {
   }
 
   getPlayerDistance() {
-    // console.log(this.position.x, "character", this.character.position.x);
     return this.position.x - this.character.position.x;
   }
 

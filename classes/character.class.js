@@ -126,7 +126,7 @@ export class Character extends MovableObject {
       this.currentState = this.state.SWIM;
     } else {
       this.idleCounter++;
-      if (this.idleCounter > 60 * 15 && this.world.state == "RUNNING") {
+      if (this.idleCounter > 60 * 15 && this.world.gameState == "RUNNING") {
         this.currentState = this.state.SLEEP;
       } else {
         this.currentState = this.state.IDLE;
@@ -164,7 +164,6 @@ export class Character extends MovableObject {
   }
 
   handleAnimations(gameFrame) {
-    // console.log("current state seen in animations", this.currentState);
     if (!this.isDead()) {
       if (this.currentState == this.state.HURT_POISON) {
         this.hurt();
@@ -285,7 +284,6 @@ export class Character extends MovableObject {
   }
 
   playDeathAnimation() {
-    // console.log("playing Death");
     this.currentImage = 0;
     let counter = 0;
     let deathInterval = setInterval(() => {
@@ -294,7 +292,6 @@ export class Character extends MovableObject {
       }
       this.playAnimation(this.IMAGES.DEAD);
       counter++;
-      // console.log(counter);
     }, 1000 / 30);
   }
 }

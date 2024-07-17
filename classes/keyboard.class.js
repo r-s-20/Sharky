@@ -255,8 +255,6 @@ export class Keyboard {
           this.MUTE = true;
           break;
       }
-      // console.log(e);
-      // console.log(this);
     });
 
     window.addEventListener("keyup", (e) => {
@@ -308,7 +306,6 @@ export class Keyboard {
 
           break;
       }
-      // console.log("release", this);
     });
   }
 }

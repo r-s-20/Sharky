@@ -30,9 +30,10 @@ export class Enemy extends MovableObject {
 
   swimSpeed;
 
-  constructor() {
-    super().loadImage("img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png");
-    this.position.x = 300 + Math.random() * 1000;
+  constructor(areaX=1000) {
+    super();
+    this.loadImage("img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png");
+    this.position.x = 300 + Math.random() * areaX;
     this.position.y = Math.random() * 350;
 
     this.loadImagePaths(this.IMAGES.SWIM, 5, "img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim");
