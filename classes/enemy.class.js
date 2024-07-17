@@ -30,14 +30,13 @@ export class Enemy extends MovableObject {
 
   swimSpeed;
 
-
   /**
    * Creates an instance of Enemy.
    * @param {number} [areaX=1000] - end of area on x-axis where enemies will appear,
    * defult of 1000 is an area near player spawn place
    * @memberof Enemy
    */
-  constructor(areaX=1000) {
+  constructor(areaX = 1000) {
     super();
     this.loadImage("img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png");
     this.position.x = 300 + Math.random() * areaX;
@@ -84,7 +83,6 @@ export class Enemy extends MovableObject {
     }
   }
 
-
   /**
    * Interval inducing Enemy movement and animation for swimming left
    * based on swimSpeed.
@@ -99,16 +97,4 @@ export class Enemy extends MovableObject {
     }, 1000 / 15);
     this.animationIntervals.push(animationInterval);
   }
-
-  // drawCollisionRectInner(ctx) {
-  //   ctx.beginPath();
-  //   ctx.rect(
-  //     this.position.x + this.offsetX,
-  //     this.position.y + this.offsetY,
-  //     this.width + this.offsetWidth,
-  //     this.height + this.offsetHeight
-  //   );
-  //   ctx.strokeStyle = "red";
-  //   ctx.stroke();
-  // }
 }

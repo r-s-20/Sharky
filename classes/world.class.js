@@ -1,7 +1,6 @@
 import { createLevel1 } from "../levels/level1.js";
 import { createLevel2 } from "../levels/level2.js";
 import { Character } from "./character.class.js";
-import { DrawableObject } from "./drawable.object.class.js";
 import { StatusSymbol } from "./statusSymbol.class.js";
 import { BackgroundObject } from "./background.object.class.js";
 import { StatusBar } from "./statusbar.class.js";
@@ -10,6 +9,7 @@ import { Enemy } from "./enemy.class.js";
 import { Endboss } from "./endboss.class.js";
 import { Screen } from "./screen.class.js";
 import { AudioControl } from "./audioControls.class.js";
+import { MovableObject } from "./movable.object.class.js";
 
 export class World {
   audio = new AudioControl();
@@ -43,8 +43,6 @@ export class World {
     this.canvas.height = CANVAS_HEIGHT;
     this.gameState = "START";
 
-    this.loadScreens();
-
     this.character = new Character(this);
     this.statusBarHp = new StatusBar("HP", this.character.maxHp);
 
@@ -54,16 +52,17 @@ export class World {
     this.screen = new Screen(this);
     this.update();
     this.draw();
-    this.updateSoundControls();
     if (this.soundsMuted) {
       this.audio.muteAll();
     }
+    this.updateSoundControls();
   }
 
+  /**
+   * Updates game states
+   */
   update() {
-    let frameCount = 0;
     setInterval(() => {
-      frameCount++;
       this.updateSoundIcon();
       if (this.gameState == "GAMEOVER") {
         this.applyGameOverStatus();
@@ -74,11 +73,16 @@ export class World {
       } else if (this.gameState == "LOADING") {
         this.applyLoadingStatus();
       } else if (this.gameState == "RUNNING") {
-        this.applyRunningStatus(frameCount);
+        this.applyRunningStatus();
       }
     }, 1000 / 60);
   }
 
+  /**
+   * Toggles audio-off and -on-icons based on muted-status
+   *
+   * @memberof World
+   */
   updateSoundIcon() {
     if (this.soundsMuted) {
       document.getElementById("audio-off").classList.remove("d-none");
@@ -89,6 +93,7 @@ export class World {
     }
   }
 
+  /** an interval that toggles muted and unmuted states for sounds */
   updateSoundControls() {
     setInterval(() => {
       if (keyboard.MUTE && this.soundsMuted) {
@@ -101,8 +106,13 @@ export class World {
     }, 1000 / 15);
   }
 
+  /**
+   * Controls audio, keyboard inputs and appearance of start screen for start status
+   */
   applyStartStatus() {
-    this.audio.background.menu.play();
+    if (this.soundsMuted == false) {
+      this.audio.background.menu.play();
+    }
     setTimeout(() => {
       if (this.gameState == "START" && this.startActive == false) this.startActive = true;
     }, 1000);
@@ -129,6 +139,9 @@ export class World {
     this.hideButtons("hud-container");
   }
 
+  /**
+   * Controls keyboard inputs and appearance of controls screen for controls status
+   */
   applyControlsStatus() {
     this.showControlsButtons();
     if (keyboard.ESC) {
@@ -144,7 +157,9 @@ export class World {
     this.showButtons("menu");
     this.hideButtons("hud-container");
   }
-
+  /**
+   * Controls keyboard inputs and appearance of loading screen
+   */
   applyLoadingStatus() {
     this.showLoadingButtons();
     this.loadLevelContents();
@@ -160,6 +175,9 @@ export class World {
     this.hideButtons("hud-container");
   }
 
+  /**
+   * Controls keyboard inputs and appearance of end screens (end of level or gameOver)
+   */
   applyGameOverStatus() {
     this.audio.background.level.pause();
     this.showGameOverButtons();
@@ -185,13 +203,18 @@ export class World {
     if (this.character.isDead() || this.lastLevel()) this.textForScreenButton("Restart");
   }
 
-  applyRunningStatus(frameCount) {
+  /**
+   * Controls keyboard inputs and appearance while game is Running.
+   * also induces intervals to handle collisions, bubbles, dead enemies and
+   * appearance of endboss
+   */
+  applyRunningStatus() {
     this.audio.background.level.play();
     this.showButtons("hud-container");
     this.hideButtons("screenBtn");
     this.updateStatusBars();
     this.checkCollisions();
-    this.handleBubbles(frameCount);
+    this.handleBubbles();
     this.handleDeadEnemies();
     this.checkFinalBossAppeared();
   }
@@ -226,6 +249,7 @@ export class World {
 
   updateStatusBars() {
     this.statusBarHp.update(this.character.hp);
+    this.statusBarEndboss.update(this.enemies[this.enemies.length - 1].hp);
   }
 
   checkCollisions() {
@@ -234,6 +258,12 @@ export class World {
     this.collisionsBubbles();
   }
 
+  /**
+   * Checks if enemies are colliding with character and will induce action
+   * and apply damage to enemy or character based on character states
+   *
+   * @memberof World
+   */
   collisionsEnemies() {
     this.enemies.forEach((enemy) => {
       if (this.character.isColliding(enemy) && !this.character.isDead() && !enemy.isDead()) {
@@ -249,6 +279,11 @@ export class World {
     });
   }
 
+  /**
+   * Handles collisions of character with collectable objects like coins and poison
+   *
+   * @memberof World
+   */
   collisionsCollectables() {
     this.collectables.forEach((item, index) => {
       if (this.character.isColliding(item)) {
@@ -258,13 +293,16 @@ export class World {
           this.score++;
           this.audio.playCoinSound();
         } else if (item.type == "POISON") {
-          this.audio.effects.poison.play();
           this.character.bubbles++;
+          this.audio.effects.poison.play();
         }
       }
     });
   }
 
+  /**
+   * Detects collisions of bubbles with enemies
+   */
   collisionsBubbles() {
     this.bubbles.forEach((bubble) => {
       this.enemies.forEach((enemy) => {
@@ -300,12 +338,19 @@ export class World {
     setTimeout(() => (this.attackRunning = false), 1000);
   }
 
+  /**
+   * Renders a score-info near an enemy if that enemy is killed by character
+   * @param {Enemy} enemy
+   */
   renderScoreInfo(enemy) {
     this.ctx.font = "30px LuckiestGuy";
     this.ctx.fillStyle = "blue";
     this.ctx.fillText(`+ ${enemy.score}`, enemy.position.x + enemy.offset.x + 20, enemy.position.y + enemy.offset.y);
   }
 
+  /**
+   * Induces change of game state if character is dead and induces death sound and animation
+   */
   checkCharacterDying() {
     if (this.character.hp <= 0) {
       this.character.playDeathAnimation();
@@ -325,6 +370,7 @@ export class World {
       if (enemy.hp <= 0) {
         this.score += enemy.score;
         if (enemy instanceof Endboss) {
+          this.updateStatusBars();
           this.gameState = "GAMEOVER";
           this.audio.menu.levelComplete.play();
         }
@@ -332,6 +378,9 @@ export class World {
     });
   }
 
+  /**
+   * Removes dead enemies if they have floated above canvas height
+   */
   handleDeadEnemies() {
     this.enemies.forEach((enemy, index) => {
       if (enemy.isDead()) {
@@ -343,10 +392,8 @@ export class World {
     });
   }
 
-  handleBubbles(frameCount) {
-    if (frameCount % 2 == 0) {
-      this.checkThrowing();
-    }
+  handleBubbles() {
+    this.checkThrowing();
     this.bubbles.forEach((bubble, bubbleIndex) => {
       if (bubble.isDead()) {
         this.bubbles.splice(bubbleIndex, 1);
@@ -354,6 +401,10 @@ export class World {
     });
   }
 
+  /**
+   * Checks if a bubble can be created and sets a cooldown for bubble creation
+   * to ensure synchronization with character animation
+   */
   checkThrowing() {
     if (keyboard.SHOOT && !this.isCreatingBubble && !this.character.isHurt()) {
       this.isCreatingBubble = true;
@@ -384,6 +435,11 @@ export class World {
     this.bubbles.push(bubble);
   }
 
+  /**
+   * Will let final boss appear if player approaches boss x position
+   *
+   * @memberof World
+   */
   checkFinalBossAppeared() {
     let finalEnemy = this.enemies[this.enemies.length - 1];
     if (this.character.position.x > finalEnemy.position.x - 400 && !finalEnemy.hasEntered) {
@@ -398,6 +454,13 @@ export class World {
     this.character.world = this;
   }
 
+  /**
+   * Animation frame that controls if either game screens or game contents are drawn
+   * based on gamestate.
+   * Will draw as fast as possible on player machine.
+   *
+   * @memberof World
+   */
   draw() {
     this.ctx.reset();
     if (this.gameState == "START") {
@@ -426,6 +489,11 @@ export class World {
     });
   }
 
+  /**
+   * Find out if another level exists.
+   * @return {number or boolean} next level or false if no next level exists
+   * @memberof World
+   */
   getNextLevel() {
     let index = this.levels.indexOf(this.currentLevel);
     if (index < this.levels.length - 1) {
@@ -434,11 +502,22 @@ export class World {
     return false;
   }
 
+  /** Checks if the current level is the last level
+   *
+   * @return {boolean} - true if last level is reached, otherwise false
+   * @memberof World
+   */
   lastLevel() {
     if (!this.getNextLevel()) return true;
     else return false;
   }
 
+  /**
+   * Executing functions to add objects and score information to canvas,
+   *  adjust camera movement and might also induce drawing of collision frames
+   *
+   * @memberof World
+   */
   drawGameContents() {
     this.camera_x = -(this.character.position.x - 50);
     this.ctx.translate(this.camera_x, 0);
@@ -463,12 +542,23 @@ export class World {
     this.ctx.translate(-this.camera_x, 0);
   }
 
+  /**
+   * Adds objects from an array to the map
+   * @param {array} objects - an array containing Movable Objects
+   * @memberof World
+   */
   addObjectsToMap(objects) {
     objects.forEach((o) => {
       this.addToMap(o);
     });
   }
 
+  /**
+   * Adds a movable object to the map
+   *
+   * @param {MovableObject} mo
+   * @memberof World
+   */
   addToMap(mo) {
     if (mo.otherDirection) {
       this.flipImage(mo);
@@ -502,6 +592,9 @@ export class World {
 
   addStatusInfos() {
     this.addToMap(this.statusBarHp);
+    if (this.enemies[this.enemies.length - 1].hasEntered) {
+      this.addToMap(this.statusBarEndboss);
+    }
     this.addToMap(this.statusSymbolBubbles);
     this.addToMap(this.statusSymbolCoins);
     this.renderStatusTexts();
@@ -516,6 +609,12 @@ export class World {
     this.ctx.fillText(this.score, (canvas.width / 6) * 4.8, 50);
   }
 
+  /**
+   * Render-function for START and LOADING-states.
+   * Renders a background screen, game title and a custom textline to canvas
+   * @param {string} message - a message to be rendered on lower part of canvas
+   * @memberof World
+   */
   renderStartScreen(message) {
     this.ctx.fillStyle = "rgba(100,100,250,0.2)";
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -529,12 +628,26 @@ export class World {
     this.ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
+  /**
+   * Render-function used for screen after finishing a level or for game over
+   * a custom textline can be provided and is rendered as canvas textline
+   *
+   * @param {string} message - message to be displayed on the screen
+   * @memberof World
+   */
   renderEndScreen(message) {
     this.screen.renderTransparentBackground();
     this.screen.renderMainMessage(message);
     if (this.character.isDead() || !this.getNextLevel()) this.screen.renderLineScore();
   }
 
+  /**
+   * Loads the contents of level selected in currentLevel.
+   * Hands over arrays with level contents to world and adjusts
+   * settings for some objects.
+   *
+   * @memberof World
+   */
   loadLevelContents() {
     if (this.currentLevel == "level1") {
       this.level = createLevel1();
@@ -546,13 +659,15 @@ export class World {
     let endboss = this.enemies[this.enemies.length - 1];
     endboss.character = this.character;
     endboss.audio = this.audio;
+    this.statusBarEndboss = new StatusBar("HP", endboss.maxHp);
+    this.statusBarEndboss.position.x = canvas.width/5*3;
+    this.statusBarEndboss.position.y = 380;
   }
 
-  loadScreens() {
-    this.gameOverScreen = new DrawableObject();
-    this.gameOverScreen.loadImage("img/6.Botones/Tittles/Game Over/Recurso 9.png");
-  }
-
+  /**
+   * Can be used to draw collision frames (with and without offsets) for character, enemies and bubbles
+   * @memberof World
+   */
   drawCollisionRects() {
     this.character.drawCollisionRect(this.ctx);
     this.enemies.forEach((enemy) => enemy.drawCollisionRect(this.ctx));

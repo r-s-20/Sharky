@@ -18,7 +18,6 @@ export class Pufferfish2 extends Enemy {
   constructor(areaX) {
     super(areaX);
     this.loadImage("img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/2.swim1.png");
-    // this.position.x = 300 + Math.random() * areaX;
     this.position.y = Math.random() * 350;
     this.IMAGES;
     this.loadImagePaths(this.IMAGES.SWIM, 5, "img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/2.swim");

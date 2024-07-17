@@ -30,7 +30,7 @@ export class Endboss extends MovableObject {
     "DEAD": 1000 / 15,
   };
 
-  constructor(hp=25, positionX=1400) {
+  constructor(maxHp=25, positionX=1400) {
     super();
     this.loadImagePaths(this.IMAGES.INTRO, 10, "img/2.Enemy/3 Final Enemy/1.Introduce/");
     this.loadImagePaths(this.IMAGES.FLOAT, 13, "img/2.Enemy/3 Final Enemy/2.floating/");
@@ -43,7 +43,8 @@ export class Endboss extends MovableObject {
     this.loadImage(this.IMAGES.INTRO[0]);
     this.state = "";
     this.animate();
-    this.hp = hp;
+    this.maxHp = maxHp;
+    this.hp = maxHp;
     this.position.x=positionX;
   }
 
