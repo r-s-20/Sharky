@@ -40,28 +40,30 @@ export class Pufferfish2 extends Enemy {
   swimLeftCycle() {
     this.otherDirection = false;
     let counter = 0;
-    let moveLeftInterval = setInterval(() => {
+    let animationInterval = setInterval(() => {
       if (counter > this.cycleLimit) {
-        clearInterval(moveLeftInterval);
+        clearInterval(animationInterval);
         this.swimRightCycle();
       }
       this.playAnimation(this.IMAGES.SWIM);
       this.moveLeft(this.swimSpeed);
       counter++;
     }, 1000 / 20);
+    this.animationIntervals.push(animationInterval);
   }
 
   swimRightCycle() {
     this.otherDirection = true;
     let counter = 0;
-    let moveInterval = setInterval(() => {
+    let animationInterval = setInterval(() => {
       if (counter > this.cycleLimit) {
-        clearInterval(moveInterval);
+        clearInterval(animationInterval);
         this.swimLeftCycle();
       }
       this.playAnimation(this.IMAGES.SWIM);
       this.moveRight(this.swimSpeed);
       counter++;
     }, 1000 / 20);
+    this.animationIntervals.push(animationInterval);
   }
 }
