@@ -47,6 +47,10 @@ export class Endboss extends MovableObject {
     this.position.x=positionX;
   }
 
+  /**
+   * Manages states for endboss based on isHurt and isDead-Status
+   * and attack states based on player position
+   */
   animate() {
     if (this.state == "FLOAT") {
       this.clearAllAnimationIntervals();
@@ -85,6 +89,7 @@ export class Endboss extends MovableObject {
     }
   }
 
+  /** can be called to check if boss dying state needs to started */
   update() {
     if (this.isDead() && this.state != "DEAD") {
       this.state = "DEAD";
@@ -96,6 +101,10 @@ export class Endboss extends MovableObject {
     }
   }
 
+  /**
+   * Controls INTRO-state for boss, interval speed for intro animation and 
+   * intro sequence audio
+   */
   introAnimation() {
     this.hasEntered = true;
     this.state = "INTRO";
@@ -111,6 +120,12 @@ export class Endboss extends MovableObject {
     return this.position.x - this.character.position.x;
   }
 
+  /**
+   * Controls endboss attack animation speed, movement during attack, 
+   * change to float-state after end of attack and attack sound
+   *
+   * @memberof Endboss
+   */
   playAttackAnimation() {
     if (this.hasEntered) {
       this.audio.effects.bossAttack.play();
@@ -132,9 +147,15 @@ export class Endboss extends MovableObject {
     this.animationIntervals.push(movementInterval);
   }
 
+  
+  /**
+   * Ensures that hurt animation ends if boss is dead, controls hurt animation speed
+   * and switch back to float status after end of animation
+   *
+   * @memberof Endboss
+   */
   playHurtAnimation() {
     if (!this.isDead()) {
-      this.clearAllAnimationIntervals();
       this.playSingleAnimation(this.IMAGES.HURT, 1000 / 15, "HURT");
       setTimeout(() => {
         this.state = "FLOAT";

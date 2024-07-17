@@ -30,6 +30,13 @@ export class Enemy extends MovableObject {
 
   swimSpeed;
 
+
+  /**
+   * Creates an instance of Enemy.
+   * @param {number} [areaX=1000] - end of area on x-axis where enemies will appear,
+   * defult of 1000 is an area near player spawn place
+   * @memberof Enemy
+   */
   constructor(areaX=1000) {
     super();
     this.loadImage("img/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png");
@@ -55,10 +62,20 @@ export class Enemy extends MovableObject {
     this.swimSpeed = 0.5 + Math.random();
   }
 
+  /**
+   * Induces movement interval for enemy, in this case swimming left
+   * @memberof Enemy
+   */
   animate() {
     this.swimLeft();
   }
 
+  /**
+   * A function that can be called to induce dead state and death animation based
+   * on .isDead()-status of Enemy
+   *
+   * @memberof Enemy
+   */
   update() {
     if (this.isDead() && this.state != "DEAD") {
       this.state = "DEAD";
@@ -67,8 +84,15 @@ export class Enemy extends MovableObject {
     }
   }
 
+
+  /**
+   * Interval inducing Enemy movement and animation for swimming left
+   * based on swimSpeed.
+   * Is stored in animationIntervals and can be stopped by clearAllAnimations().
+   *
+   * @memberof Enemy
+   */
   swimLeft() {
-    // this.autoMoveLeft(1000 / 15, this.swimSpeed);
     let animationInterval = setInterval(() => {
       this.playAnimation(this.IMAGES.SWIM);
       this.moveLeft(this.swimSpeed);
@@ -76,15 +100,15 @@ export class Enemy extends MovableObject {
     this.animationIntervals.push(animationInterval);
   }
 
-  drawCollisionRectInner(ctx) {
-    ctx.beginPath();
-    ctx.rect(
-      this.position.x + this.offsetX,
-      this.position.y + this.offsetY,
-      this.width + this.offsetWidth,
-      this.height + this.offsetHeight
-    );
-    ctx.strokeStyle = "red";
-    ctx.stroke();
-  }
+  // drawCollisionRectInner(ctx) {
+  //   ctx.beginPath();
+  //   ctx.rect(
+  //     this.position.x + this.offsetX,
+  //     this.position.y + this.offsetY,
+  //     this.width + this.offsetWidth,
+  //     this.height + this.offsetHeight
+  //   );
+  //   ctx.strokeStyle = "red";
+  //   ctx.stroke();
+  // }
 }

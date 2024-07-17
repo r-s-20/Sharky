@@ -1,3 +1,10 @@
+/**
+ * Class for managing all game-related keyboard and button inputs
+ * Some menu buttons have timeouts to avoid instant activation of next screen
+ *
+ * @export
+ * @class Keyboard
+ */
 export class Keyboard {
   LEFT = false;
   RIGHT = false;

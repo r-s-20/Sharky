@@ -14,15 +14,14 @@ window.addEventListener("load", () => {
   globalThis.world = new World(canvas);
 });
 
+
 window.addEventListener("keydown", (e) => {
   let container = document.querySelector(".canvas-container");
   let elem = document.getElementById("canvas");
   if (e.key == "f") {
     if (elem.requestFullscreen) {
-      // elem.requestFullscreen();
       container.requestFullscreen();
     } else if (elem.webkitRequestFullscreen) {
-      /* Safari */
       elem.webkitRequestFullscreen();
     }
   }

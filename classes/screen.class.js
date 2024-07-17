@@ -1,6 +1,13 @@
 import { DrawableObject } from "./drawable.object.class.js";
 
 export class Screen {
+  /**
+   * Creates an instance of Screen.
+   * Provides rendering options to create text, background and color effects for
+   * start, loading and end screens
+   * @param {World} world
+   * @memberof Screen
+   */
   constructor(world) {
     this.world = world;
   }
@@ -41,6 +48,12 @@ export class Screen {
     this.world.ctx.fillText(message, canvas.width / 2, canvas.height / 2.1);
   }
 
+  /**
+   * Creates a color gradient from left to right over canvas
+   *
+   * @return {*} 
+   * @memberof Screen
+   */
   createGradient() {
     let gradient = this.world.ctx.createLinearGradient(0, 0, canvas.width, 0);
     gradient.addColorStop("0", "lightblue");
@@ -49,6 +62,11 @@ export class Screen {
     return gradient;
   }
 
+  /**
+   * Renders a text for endscreen based on character status.
+   *
+   * @memberof Screen
+   */
   renderLineRestart() {
     this.world.ctx.lineWidth = 4;
     this.world.ctx.strokeStyle = "white";
@@ -59,6 +77,11 @@ export class Screen {
     this.world.ctx.fillText(text, canvas.width / 2, (canvas.height / 5) * 4);
   }
 
+  /**
+   * Renders a text line in magenta showing player score
+   *
+   * @memberof Screen
+   */
   renderLineScore() {
     this.world.ctx.lineWidth = 4;
     this.world.ctx.strokeStyle = "white";

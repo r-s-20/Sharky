@@ -59,6 +59,8 @@ export function createLevel2() {
       new CollectableObject("POISON", CANVAS_WIDTH * 3.8),
       new CollectableObject("POISON", CANVAS_WIDTH * 3.8),
       new CollectableObject("POISON", CANVAS_WIDTH * 3.8),
+      new CollectableObject("POISON", CANVAS_WIDTH * 3.8),
+      new CollectableObject("POISON", CANVAS_WIDTH * 3.8),
       new CollectableObject("COIN", CANVAS_WIDTH * 3.8),
       new CollectableObject("COIN", CANVAS_WIDTH * 3.8),
       new CollectableObject("COIN", CANVAS_WIDTH * 3.8),

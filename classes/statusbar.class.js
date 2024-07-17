@@ -17,6 +17,13 @@ export class StatusBar extends DrawableObject {
     "BUBBLES": 80,
   };
 
+  /**
+   * Creates an instance of StatusBar based on type.
+   * Needs a maxValue for that type to correctly calculate 100%-value for Statusbar
+   * @param {string} type - might be "HP", "COINS" or "BUBBLES"
+   * @param {number} maxValue - the maximal Value for type
+   * @memberof StatusBar
+   */
   constructor(type, maxValue) {
     super();
     this.maxValue = maxValue;
@@ -27,11 +34,25 @@ export class StatusBar extends DrawableObject {
     this.loadImage(this.IMAGES[5]);
   }
 
+  /**
+   * Calculates percentage from provided value based on maxValue and updates
+   * the StatusBar image according to resulting percentage
+   *
+   * @param {number} value - current value of character hp, coins or bubbles
+   * @memberof StatusBar
+   */
   update(value) {
     let percent = Math.round((value / this.maxValue) * 100);
     this.loadImage(this.IMAGES[this.getImageIndex(percent)]);
   }
 
+  /**
+   * Assings different image versions of status bar for given percentage
+   *
+   * @param {number} value - up to date percent value of type (hp, coin or bubbles)
+   * @return {number} - index of image that reflects the correct percentage
+   * @memberof StatusBar
+   */
   getImageIndex(value) {
     if (value > 80) return 5;
     else if (value > 60) return 4;

@@ -5,6 +5,13 @@ export class StatusSymbol extends DrawableObject {
   width = 55;
   height = 55;
 
+  /**
+   * Creates an instance of StatusSymbol.
+   * @param {url} path - url to be used as src for image of statusSymbol
+   * @param {number} positionX - position on x-axis 
+   * @param {number} positionY - position on y-axis
+   * @memberof StatusSymbol
+   */
   constructor(path, positionX, positionY) {
     super();
     this.loadImage(path);
