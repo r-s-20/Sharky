@@ -68,13 +68,8 @@ export class Endboss extends MovableObject {
     let floatInterval = setInterval(() => {
       this.audio.effects.bossAttack.pause();
       this.checkDead();
-      if (this.isHurt() && !this.isDead()) {
-        this.state = "HURT";
-        this.playHurtAnimation();
-      }
-      if (this.state !== "FLOAT") {
-        clearInterval(floatInterval);
-      }
+      this.checkHurt();
+      this.checkFloatEnd(floatInterval);
       if (gameFrame % 10 == 0) {
         this.playAnimation(this.IMAGES.FLOAT);
       }
@@ -97,6 +92,27 @@ export class Endboss extends MovableObject {
       if (this.getPlayerDistance() < -50) {
         this.attackRight();
       }
+    }
+  }
+
+  /**
+   * Clears interval if state is no longer "FLOAT"
+   * @param {intervalId} floatInterval
+   */
+  checkFloatEnd(floatInterval) {
+    if (this.state !== "FLOAT") {
+      clearInterval(floatInterval);
+    }
+  }
+
+  /**
+   * Changes state to "HURT and plays hurt animation if 
+   * Endboss is hurt, but not dead
+   */
+  checkHurt() {
+    if (this.isHurt() && !this.isDead()) {
+      this.state = "HURT";
+      this.playHurtAnimation();
     }
   }
 
